@@ -24,8 +24,9 @@ class _SignupView extends State<SignupView> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // App Logo
-              Image.asset('assets/image/loginimage.png'), // Replace with your logo
-            
+            Image.asset(
+              'assets/image/loginimage.png',
+            ), // Replace with your logo
             // const SizedBox(height: 32),
 
             // Title
@@ -41,10 +42,7 @@ class _SignupView extends State<SignupView> {
 
             const Text(
               "Create new account",
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 18,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 18),
             ),
             const SizedBox(height: 32),
 
@@ -90,9 +88,9 @@ class _SignupView extends State<SignupView> {
                   hintText: "Input your password",
                   border: InputBorder.none,
                   suffixIcon: IconButton(
-                    icon: Icon(_obscureText
-                        ? Icons.visibility_off
-                        : Icons.visibility),
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
                     onPressed: () {
                       setState(() {
                         _obscureText = !_obscureText;
@@ -123,9 +121,9 @@ class _SignupView extends State<SignupView> {
                   hintText: "Input your password again",
                   border: InputBorder.none,
                   suffixIcon: IconButton(
-                    icon: Icon(_obscureText
-                        ? Icons.visibility_off
-                        : Icons.visibility),
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
+                    ),
                     onPressed: () {
                       setState(() {
                         _obscureText = !_obscureText;

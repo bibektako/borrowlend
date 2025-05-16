@@ -1,4 +1,5 @@
 import 'package:borrowlend/view/login_view.dart';
+import 'package:borrowlend/view/onboarding_view.dart';
 import 'package:borrowlend/view/signup_view.dart';
 import 'package:flutter/material.dart';
 
@@ -7,6 +8,8 @@ class App extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: SignupView());
+
+    return MaterialApp(debugShowCheckedModeBanner: false,
+    home: OnBoardingView());
   }
 }
