@@ -5,16 +5,20 @@ class LoginView extends StatefulWidget {
 
   @override
   State<LoginView> createState() => _LoginView();
+  
 }
 
 class _LoginView extends State<LoginView> {
+  final _formKey = GlobalKey<FormState>();
+
   bool _obscureText = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white),
-      body: SingleChildScrollView(
+      body: Form(
+        key: _formKey,
         child: Padding(
           padding: EdgeInsets.all(12),
           child: Column(
@@ -50,21 +54,17 @@ class _LoginView extends State<LoginView> {
               ),
               SizedBox(height: 32),
               Text("Email", style: TextStyle(color: Colors.black, fontSize: 18)),
-              Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey, width: 2),
-                ),
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.email),
-                    hintText: "Yourmail@mail.com",
-                    border: InputBorder.none,
+              TextFormField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.email),
+                  hintText: "Yourmail@mail.com",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey)
                   ),
-        
-                  keyboardType: TextInputType.numberWithOptions(),
                 ),
+                      
+                keyboardType: TextInputType.numberWithOptions(),
               ),
               SizedBox(height: 20),
               Text(
@@ -72,28 +72,24 @@ class _LoginView extends State<LoginView> {
                 style: TextStyle(color: Colors.black, fontSize: 18),
               ),
               SizedBox(height: 5),
-              Container(
-                height: 44,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey, width: 2),
-                ),
-                child: TextFormField(
-                  obscureText: _obscureText,
-                  decoration: InputDecoration(
-                    icon: Icon(Icons.lock),
-                    hintText: "Input your password",
-                    border: InputBorder.none,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility_off : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
+              TextFormField(
+                obscureText: _obscureText,
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.key),
+                  hintText: "Input your password",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide(color: Colors.grey)
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureText ? Icons.visibility_off : Icons.visibility,
                     ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureText = !_obscureText;
+                      });
+                    },
                   ),
                 ),
               ),

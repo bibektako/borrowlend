@@ -27,7 +27,7 @@ class _SignupView extends State<SignupView> {
             Image.asset(
               'assets/image/loginimage.png',
                 width: double.infinity,
-                 height: 200,
+                 height: 180,
                 fit: BoxFit.fitHeight,
             ),
 
@@ -56,20 +56,16 @@ class _SignupView extends State<SignupView> {
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
             const SizedBox(height: 5),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey, width: 2),
-              ),
-              child: TextFormField(
-                decoration: const InputDecoration(
-                  prefixIcon: const Icon(Icons.email),
-                  hintText: "yourmail@mail.com",
-                  border: InputBorder.none,
+            TextFormField(
+              decoration:  InputDecoration(
+                prefixIcon: const Icon(Icons.email),
+                labelText: "yourmail@mail.com",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey)
                 ),
-                keyboardType: TextInputType.emailAddress,
               ),
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 20),
 
@@ -79,28 +75,24 @@ class _SignupView extends State<SignupView> {
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
             const SizedBox(height: 5),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey, width: 2),
-              ),
-              child: TextFormField(
-                obscureText: _obscureText,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock),
-                  labelText: "Password",
-                  border: InputBorder.none,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
+            TextFormField(
+              obscureText: _obscureText,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.key),
+                labelText: "Password",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey)
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
                 ),
               ),
             ),
@@ -112,28 +104,24 @@ class _SignupView extends State<SignupView> {
               style: TextStyle(color: Colors.black, fontSize: 18),
             ),
             const SizedBox(height: 5),
-            Container(
-              height: 44,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey, width: 2),
-              ),
-              child: TextFormField(
-                obscureText: _obscureText,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.lock),
-                  hintText: "Input your password again",
-                  border: InputBorder.none,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscureText ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscureText = !_obscureText;
-                      });
-                    },
+            TextFormField(
+              obscureText: _obscureText,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.key),
+                labelText: "Conform Password",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey)
+                ),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility_off : Icons.visibility,
                   ),
+                  onPressed: () {
+                    setState(() {
+                      _obscureText = !_obscureText;
+                    });
+                  },
                 ),
               ),
             ),
