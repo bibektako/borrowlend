@@ -14,10 +14,10 @@ class _SignupView extends State<SignupView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      // appBar: AppBar(
-      //   backgroundColor: Colors.white,
-      //   elevation: 0,
-      // ),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
         child: Column(
@@ -26,8 +26,12 @@ class _SignupView extends State<SignupView> {
             // App Logo
             Image.asset(
               'assets/image/loginimage.png',
-            ), // Replace with your logo
-            // const SizedBox(height: 32),
+                width: double.infinity,
+                 height: 200,
+                fit: BoxFit.fitHeight,
+            ),
+
+            
 
             // Title
             const Text(
@@ -60,7 +64,7 @@ class _SignupView extends State<SignupView> {
               ),
               child: TextFormField(
                 decoration: const InputDecoration(
-                  icon: Icon(Icons.email),
+                  prefixIcon: const Icon(Icons.email),
                   hintText: "yourmail@mail.com",
                   border: InputBorder.none,
                 ),
@@ -84,8 +88,8 @@ class _SignupView extends State<SignupView> {
               child: TextFormField(
                 obscureText: _obscureText,
                 decoration: InputDecoration(
-                  icon: const Icon(Icons.lock),
-                  hintText: "Input your password",
+                  prefixIcon: const Icon(Icons.lock),
+                  labelText: "Password",
                   border: InputBorder.none,
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -117,7 +121,7 @@ class _SignupView extends State<SignupView> {
               child: TextFormField(
                 obscureText: _obscureText,
                 decoration: InputDecoration(
-                  icon: const Icon(Icons.lock),
+                  prefixIcon: const Icon(Icons.lock),
                   hintText: "Input your password again",
                   border: InputBorder.none,
                   suffixIcon: IconButton(

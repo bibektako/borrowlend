@@ -1,4 +1,5 @@
 import 'package:borrowlend/view/login_view.dart';
+import 'package:borrowlend/view/signup_view.dart';
 import 'package:flutter/material.dart';
 
 class OnBoardingView extends StatefulWidget {
@@ -60,7 +61,7 @@ class _OnBoardingView extends State<OnBoardingView> {
                   )
                   ),
                   onPressed: (){
-                    Navigator.push(context,MaterialPageRoute(builder: (_)=>const LoginView()));
+                    Navigator.push(context,MaterialPageRoute(builder: (_)=>const SignupView()));
                   }, child: Text("I`m new, sign me up",style: TextStyle( fontSize: 15,fontWeight: FontWeight.bold))),
               )
             ],
