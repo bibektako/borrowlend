@@ -28,7 +28,10 @@ class _SplashscreenView extends State<SplashscreenView>{
          
               child:Column(
                 children: [
-                  Center(child: Image.asset('assets/image/onboarding.png')),
+                  Center(child: Image.asset('assets/image/splashlogo.png')),
+                  CircularProgressIndicator(
+                    color: Colors.blue,
+                  )
                 ],
               )
            
