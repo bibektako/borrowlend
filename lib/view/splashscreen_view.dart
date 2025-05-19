@@ -1,5 +1,3 @@
-
-
 import 'dart:async';
 
 import 'package:borrowlend/view/onboarding_view.dart';
@@ -15,7 +13,7 @@ class _SplashscreenView extends State<SplashscreenView>{
   @override
   void initState() {
     super.initState();
-    Timer(Duration(seconds: 3),(){
+    Timer(Duration(seconds: 5),(){
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>OnBoardingView()));
     });
   }
@@ -23,20 +21,29 @@ class _SplashscreenView extends State<SplashscreenView>{
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: EdgeInsets.all(12),
-         
-              child:Column(
-                children: [
-                  Center(child: Image.asset('assets/image/splashlogo.png')),
-                  CircularProgressIndicator(
-                    color: Colors.blue,
-                  )
-                ],
-              )
+      body: SafeArea(
+        
+        child: Padding(
+          
+          padding: EdgeInsets.all(12),
            
-      
-      
+                child:Center(
+                  
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center ,
+                    children: [
+                      
+                      Center(child: Image.asset('assets/image/splashlogo.png',width: 150,height: 150,)),
+                      CircularProgressIndicator(
+                        color: Colors.blue,
+                      )
+                    ],
+                  ),
+                )
+             
+        
+        
+        ),
       )
 
     );
