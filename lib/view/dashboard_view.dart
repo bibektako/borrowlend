@@ -11,7 +11,18 @@ class _DashboardView extends State<DashboardView>{
     @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
+      backgroundColor: Colors.blueGrey,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Dashboard page",
+          style: TextStyle(
+            fontSize: 50,
+            fontWeight: FontWeight.bold
+          ),
+          )
+        ],
+      ),
     );
   }
 }

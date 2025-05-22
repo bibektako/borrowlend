@@ -151,7 +151,7 @@ class _LoginView extends State<LoginView> {
                     onPressed: () {
                       if(_formKey.currentState!.validate()){
                         String email = _emailController.text.trim();
-                        String password = _passwordController.toString();
+                        String password = _passwordController.text.trim();
                         if(email == 'admin' && password == 'admin123'){
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text("Login success"),
@@ -163,12 +163,17 @@ class _LoginView extends State<LoginView> {
                          ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Login failed"),
                           behavior: SnackBarBehavior.floating,
+                          backgroundColor: Colors.blue,
             
                           ));
                         }
                       }
                     },
-                    child: Text("login"),
+                    child: Text("Login",
+                    style: TextStyle(
+                      color: Colors.white
+                    ),
+                    ),
                   ),
                 ),
                 SizedBox(height: 16),
