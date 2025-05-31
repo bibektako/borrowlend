@@ -12,23 +12,22 @@ class SliderScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CarouselSlider(
-      items: imageList.map((item) {
-        return Image.asset(
-          item['image_path'],
-          fit: BoxFit.cover,
-          width: double.infinity,
-        );
-      }).toList(),
+      items:
+          imageList.map((item) {
+            return Image.asset(
+              item['image_path'],
+              fit: BoxFit.fill,
+              width: double.infinity,
+            );
+          }).toList(),
       options: CarouselOptions(
-        height: 200.0,
+        height: 150.0,
         autoPlay: true,
         enlargeCenterPage: true,
         viewportFraction: 0.9,
         aspectRatio: 16 / 9,
-        autoPlayInterval: const Duration(seconds: 3),
-       
+        autoPlayInterval: const Duration(seconds: 30),
       ),
-      
     );
   }
 }

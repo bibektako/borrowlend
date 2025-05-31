@@ -1,5 +1,10 @@
+import 'dart:ffi';
+
 import 'package:borrowlend/common/app_header.dart';
 import 'package:borrowlend/common/bottom_nav_bar.dart';
+import 'package:borrowlend/common/category_explorer.dart';
+import 'package:borrowlend/common/most_borrowed.dart';
+import 'package:borrowlend/common/slider_screen.dart';
 import 'package:flutter/material.dart';
 
 class DashboardView extends StatefulWidget {
@@ -22,14 +27,10 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80),
-        child: SafeArea(child: AppHeader()),
-      ),
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
-        
+
         onTap: (index) {
           setState(() {
             _currentIndex = index;

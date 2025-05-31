@@ -11,5 +11,6 @@ ThemeData getApplicationTheme(){
       backgroundColor: Colors.white
     ),
     fontFamily: 'Inter Regular'
+    
   );
 }
