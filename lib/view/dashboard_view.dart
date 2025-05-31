@@ -1,3 +1,4 @@
+import 'package:borrowlend/common/app_header.dart';
 import 'package:borrowlend/common/bottom_nav_bar.dart';
 import 'package:borrowlend/view/home_page_view.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,14 @@ class _DashboardViewState extends State<DashboardView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60), // Adjust height as needed
+        child: SafeArea(
+          // Optional: Avoid status bar overlap
+          child: AppHeader(),
+        ),
+      ),
+
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,

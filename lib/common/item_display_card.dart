@@ -15,8 +15,7 @@ class ItemDisplayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 150,
-      
-
+      height: 220,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -24,7 +23,7 @@ class ItemDisplayCard extends StatelessWidget {
         boxShadow: [BoxShadow(blurRadius: 4, color: Colors.blue)],
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             height: 150,
@@ -39,6 +38,8 @@ class ItemDisplayCard extends StatelessWidget {
               itemName,
               textAlign: TextAlign.left,
               style: const TextStyle(fontSize: 20, color: Colors.black),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           SizedBox(height: 8),
