@@ -15,8 +15,9 @@ class ItemDisplayCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: 150,
+      
 
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -41,10 +42,12 @@ class ItemDisplayCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 8),
-          Text(
-            "Rs:$price",
-            textAlign: TextAlign.left,
-            style: TextStyle(fontSize: 13),
+          Flexible(
+            child: Text(
+              "Rs:$price",
+              textAlign: TextAlign.left,
+              style: TextStyle(fontSize: 13),
+            ),
           ),
         ],
       ),

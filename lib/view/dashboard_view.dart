@@ -1,10 +1,5 @@
-import 'dart:ffi';
-
-import 'package:borrowlend/common/app_header.dart';
 import 'package:borrowlend/common/bottom_nav_bar.dart';
-import 'package:borrowlend/common/category_explorer.dart';
-import 'package:borrowlend/common/most_borrowed.dart';
-import 'package:borrowlend/common/slider_screen.dart';
+import 'package:borrowlend/view/home_page_view.dart';
 import 'package:flutter/material.dart';
 
 class DashboardView extends StatefulWidget {
@@ -18,7 +13,7 @@ class _DashboardViewState extends State<DashboardView> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = [
-    Center(child: Text("Home Page")),
+    const HomePageView(),
     Center(child: Text("Explore Page")),
     Center(child: Text("Bookmarks Page")),
     Center(child: Text("Profile Page")),
@@ -30,7 +25,6 @@ class _DashboardViewState extends State<DashboardView> {
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavBar(
         currentIndex: _currentIndex,
-
         onTap: (index) {
           setState(() {
             _currentIndex = index;

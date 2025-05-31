@@ -21,10 +21,11 @@ class SliderScreen extends StatelessWidget {
             );
           }).toList(),
       options: CarouselOptions(
-        height: 150.0,
+        height: 163.0,
+
         autoPlay: true,
-        enlargeCenterPage: true,
-        viewportFraction: 0.9,
+        enlargeCenterPage: false,
+        viewportFraction: 1,
         aspectRatio: 16 / 9,
         autoPlayInterval: const Duration(seconds: 30),
       ),
