@@ -1,5 +1,5 @@
 
-import 'package:borrowlend/theme/theme_data.dart';
+import 'package:borrowlend/app/theme/theme_data.dart';
 
 import 'package:borrowlend/view/splashscreen_view.dart';
 import 'package:flutter/material.dart';

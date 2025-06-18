@@ -20,7 +20,7 @@ class ItemDisplayCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(blurRadius: 4, color: Colors.blue)],
+        boxShadow: [BoxShadow(blurRadius: 2, color: Colors.blue)],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

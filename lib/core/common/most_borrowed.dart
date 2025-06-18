@@ -1,4 +1,4 @@
-import 'package:borrowlend/common/item_display_card.dart';
+import 'package:borrowlend/core/common/item_display_card.dart';
 import 'package:flutter/material.dart';
 
 class MostBorrowed extends StatelessWidget {

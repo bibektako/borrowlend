@@ -21,7 +21,8 @@ class SliderScreen extends StatelessWidget {
             );
           }).toList(),
       options: CarouselOptions(
-        height: 163.0,
+       height: 400,
+        // height: 163,
 
         autoPlay: true,
         enlargeCenterPage: false,

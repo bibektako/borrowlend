@@ -1,8 +1,8 @@
-import 'package:borrowlend/common/app_header.dart';
-import 'package:borrowlend/common/category_explorer.dart';
-import 'package:borrowlend/common/item_display_card.dart';
-import 'package:borrowlend/common/most_borrowed.dart';
-import 'package:borrowlend/common/slider_screen.dart';
+import 'package:borrowlend/core/common/app_header.dart';
+import 'package:borrowlend/core/common/category_explorer.dart';
+import 'package:borrowlend/core/common/item_display_card.dart';
+import 'package:borrowlend/core/common/most_borrowed.dart';
+import 'package:borrowlend/core/common/slider_screen.dart';
 import 'package:borrowlend/view/search_view.dart';
 import 'package:flutter/material.dart';
 

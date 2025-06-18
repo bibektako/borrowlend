@@ -1,5 +1,5 @@
-import 'package:borrowlend/common/app_header.dart';
-import 'package:borrowlend/common/bottom_nav_bar.dart';
+import 'package:borrowlend/core/common/app_header.dart';
+import 'package:borrowlend/core/common/bottom_nav_bar.dart';
 import 'package:borrowlend/view/home_page_view.dart';
 import 'package:flutter/material.dart';
 
