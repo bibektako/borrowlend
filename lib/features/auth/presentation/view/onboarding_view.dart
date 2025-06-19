@@ -1,11 +1,16 @@
+import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/auth/presentation/view/login_view.dart';
 import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_event.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_event.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OnBoardingView extends StatelessWidget {
   const OnBoardingView({super.key});
 
-  
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.white),
@@ -47,10 +52,12 @@ class OnBoardingView extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const LoginView()),
-                      );
+                      // context.read<LoginView>().add(
+                      //   NavigateToLoginView(
+                      //     context: context,
+                      //     destination: LoginView(),
+                      //   ),
+                      // );
                     },
                     child: Text(
                       "Get Started",
@@ -74,9 +81,11 @@ class OnBoardingView extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) =>  SignupView()),
+                      context.read<OnbordingViewModel>().add(
+                        NavigateToSignupView(
+                          context: context,
+                          destination: SignupView(),
+                        ),
                       );
                     },
                     child: Text(

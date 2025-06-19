@@ -6,6 +6,8 @@ class LoginView extends StatefulWidget {
 
   @override
   State<LoginView> createState() => _LoginView();
+
+  void add(navigateToForgotPasswordView) {}
 }
 
 class _LoginView extends State<LoginView> {
