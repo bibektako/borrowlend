@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:borrowlend/app/constant/hive_table_constant.dart';
 import 'package:borrowlend/features/auth/data/model/user_hive_model.dart';

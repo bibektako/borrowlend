@@ -2,15 +2,10 @@ import 'package:borrowlend/features/auth/presentation/view/login_view.dart';
 import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
 import 'package:flutter/material.dart';
 
-class OnBoardingView extends StatefulWidget {
+class OnBoardingView extends StatelessWidget {
   const OnBoardingView({super.key});
 
-  @override
-  State<OnBoardingView> createState() => _OnBoardingView();
-}
-
-class _OnBoardingView extends State<OnBoardingView> {
-  @override
+  
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(backgroundColor: Colors.white),
@@ -81,7 +76,7 @@ class _OnBoardingView extends State<OnBoardingView> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (_) => const SignupView()),
+                        MaterialPageRoute(builder: (_) =>  SignupView()),
                       );
                     },
                     child: Text(

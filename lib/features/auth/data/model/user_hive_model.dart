@@ -46,12 +46,24 @@ class UserHiveModel extends Equatable {
 
   //From entity
   factory UserHiveModel.fromEntity(UserEntity user){
-    return UserHiveModel(email: user.email, password: user.password);
+    return UserHiveModel(userId: user.userId, 
+      username: user.username,
+      email: user.email,
+      phone: user.phone,
+      password: user.password, 
+      location: user.location,
+      bio: user.bio,);
   }
 
   // To Entity
   UserEntity toEntity(){
-    return UserEntity(email: email, password: password);
+    return UserEntity(  userId: userId,
+      username: username,
+      email: email,
+      phone: phone,
+      password: password,
+      location: location,
+      bio: bio,);
   }
 
   @override

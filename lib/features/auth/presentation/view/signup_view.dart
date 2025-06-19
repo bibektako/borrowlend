@@ -1,27 +1,22 @@
-
-import 'package:borrowlend/features/auth/presentation/view/login_view.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_event.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SignupView extends StatefulWidget {
-  const SignupView({super.key});
+@immutable
+class SignupView extends StatelessWidget {
+  SignupView({super.key});
 
-  @override
-  State<SignupView> createState() => _SignupView();
-}
-
-class _SignupView extends State<SignupView> {
+  // Controllers and Keys are now final properties of the StatelessWidget
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _obscureText = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       backgroundColor: Colors.white,
-      
       body: SafeArea(
         child: Form(
           key: _formKey,
@@ -34,13 +29,11 @@ class _SignupView extends State<SignupView> {
                   // App Logo
                   Image.asset(
                     'assets/image/loginimage.png',
-                      width: double.infinity,
-                       height: 180,
-                      fit: BoxFit.fitHeight,
+                    width: double.infinity,
+                    height: 180,
+                    fit: BoxFit.fitHeight,
                   ),
-              
-                  
-              
+
                   // Title
                   const Text(
                     "Create your account",
@@ -51,13 +44,13 @@ class _SignupView extends State<SignupView> {
                     ),
                   ),
                   const SizedBox(height: 8),
-              
+
                   const Text(
                     "Create new account",
                     style: TextStyle(color: Colors.grey, fontSize: 18),
                   ),
                   const SizedBox(height: 32),
-              
+
                   // Email Field
                   const Text(
                     "Email",
@@ -66,98 +59,69 @@ class _SignupView extends State<SignupView> {
                   const SizedBox(height: 5),
                   TextFormField(
                     controller: _emailController,
-                    decoration:  InputDecoration(
+                    decoration: InputDecoration(
                       prefixIcon: const Icon(Icons.email),
                       labelText: "yourmail@mail.com",
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey)
+                        borderSide: const BorderSide(color: Colors.grey),
                       ),
                     ),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if(value == null || value.isEmpty){
+                      if (value == null || value.isEmpty) {
                         return "Enter the email";
+                      }
+                      if (!RegExp(r'\S+@\S+\.\S+').hasMatch(value)) {
+                        return "Please enter a valid email address.";
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
-              
-                  // Password Field
+
+                  // Password Field (using the new stateful widget)
                   const Text(
                     "Password",
                     style: TextStyle(color: Colors.black, fontSize: 18),
                   ),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  _PasswordTextField(
                     controller: _passwordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.key),
-                      labelText: "Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey)
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      ),
-                    ),
+                    labelText: 'Password',
                     validator: (value) {
-                      if(value == null || value.isEmpty){
+                      if (value == null || value.isEmpty) {
                         return "Enter password";
-                      }else if(value.length < 6){
-                        return "Password must be at least 6 character";
+                      } else if (value.length < 6) {
+                        return "Password must be at least 6 characters";
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 20),
-              
-                  // Confirm Password Field
+
+                  // Confirm Password Field (using the new stateful widget)
                   const Text(
                     "Confirm Password",
                     style: TextStyle(color: Colors.black, fontSize: 18),
                   ),
                   const SizedBox(height: 5),
-                  TextFormField(
+                  _PasswordTextField(
                     controller: _confirmPasswordController,
-                    obscureText: _obscureText,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.key),
-                      labelText: "Confirm Password",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey)
-                      ),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscureText ? Icons.visibility_off : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscureText = !_obscureText;
-                          });
-                        },
-                      ),
-                    ),
-                    validator:(value) {
-                      if(value == null || value.isEmpty){
+                    labelText: 'Confirm Password',
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
                         return "Confirm password cannot be empty";
+                      }
+                      if (_passwordController.text !=
+                          _confirmPasswordController.text) {
+                        return "Passwords don't match";
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
-              
+
                   // Register Button
                   SizedBox(
                     width: double.infinity,
@@ -170,32 +134,25 @@ class _SignupView extends State<SignupView> {
                         ),
                       ),
                       onPressed: () {
-                        if(_formKey.currentState!.validate()){
-                          String email = _emailController.text.trim();
-                          String password = _passwordController.text.trim();
-                          String confirmPassword = _confirmPasswordController.text.trim();
-              
-                          if(password != confirmPassword){
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Password and Confirm Password don't match"),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.red
-                              ));
-                          }else {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Registration success"),
-                                behavior: SnackBarBehavior.floating,
-                                backgroundColor: Colors.blue,
-                                ));
-                                Navigator.push(context, MaterialPageRoute(builder:(_) => const LoginView() ));
-                          }
+                        if (_formKey.currentState!.validate()) {
+                          context.read<SignupViewModel>().add(
+                            SignupUserEvent(
+                              context: context,
+                              email: _emailController.text,
+                              password: _passwordController.text,
+                              confirmPassword: _confirmPasswordController.text,
+                            ),
+                          );
                         }
                       },
-                      child: const Text("Register",
-                      style: TextStyle(color: Colors.white),),
+                      child: const Text(
+                        "Register",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-              
+
                   // Google Button
                   SizedBox(
                     width: double.infinity,
@@ -221,6 +178,52 @@ class _SignupView extends State<SignupView> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// A dedicated StatefulWidget to manage the state of a password text field.
+/// This widget encapsulates the `_obscureText` logic.
+class _PasswordTextField extends StatefulWidget {
+  const _PasswordTextField({
+    required this.controller,
+    this.labelText,
+    this.validator,
+  });
+
+  final TextEditingController controller;
+  final String? labelText;
+  final String? Function(String?)? validator;
+
+  @override
+  State<_PasswordTextField> createState() => _PasswordTextFieldState();
+}
+
+class _PasswordTextFieldState extends State<_PasswordTextField> {
+  bool _obscureText = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: widget.controller,
+      obscureText: _obscureText,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.key),
+        labelText: widget.labelText,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: Colors.grey),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
+          onPressed: () {
+            setState(() {
+              _obscureText = !_obscureText;
+            });
+          },
+        ),
+      ),
+      validator: widget.validator,
     );
   }
 }
