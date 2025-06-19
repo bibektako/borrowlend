@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-@immutable
 sealed class OnbordingEvent {}
 
 class NavigateToSignupView extends OnbordingEvent {

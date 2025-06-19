@@ -2,6 +2,8 @@ import 'package:borrowlend/core/network/hive_service.dart';
 import 'package:borrowlend/features/auth/data/data_source/local_datasource/user_local_datasource.dart';
 import 'package:borrowlend/features/auth/data/repository/local_repository/user_local_repository.dart';
 import 'package:borrowlend/features/auth/domain/use_case/create_user_usecase.dart';
+import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
@@ -22,6 +24,7 @@ Future _initHiveService() async {
 Future _initSpashModule() async {
   serviceLocator.registerFactory(() => SplashscreenViewModel());
 }
+
 Future _initOnbordingModule() async {
   serviceLocator.registerFactory(() => OnbordingViewModel());
 }
@@ -44,5 +47,14 @@ Future _initAuthModule() async {
   serviceLocator.registerFactory<SignupViewModel>(
     () =>
         SignupViewModel(createUserUsecase: serviceLocator<CreateUserUsecase>()),
+  );
+
+  serviceLocator.registerFactory(
+    () =>
+        LoginUserUsecase(userRepository: serviceLocator<UserLocalRepository>()),
+  );
+
+  serviceLocator.registerFactory<LoginViewModel>(
+    () => LoginViewModel(serviceLocator<LoginUserUsecase>()),
   );
 }

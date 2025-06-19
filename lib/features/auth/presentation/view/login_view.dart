@@ -1,22 +1,18 @@
+import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_event.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/view/dashboard_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+class LoginView extends StatelessWidget {
+  LoginView({super.key});
 
-  @override
-  State<LoginView> createState() => _LoginView();
-
-  void add(navigateToForgotPasswordView) {}
-}
-
-class _LoginView extends State<LoginView> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscureText = true;
-  @override
+
   Widget build(BuildContext context) {
+    bool _obscureText = true;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(),
@@ -103,11 +99,7 @@ class _LoginView extends State<LoginView> {
                       icon: Icon(
                         _obscureText ? Icons.visibility_off : Icons.visibility,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _obscureText = !_obscureText;
-                        });
-                      },
+                      onPressed: () {},
                     ),
                   ),
                   validator: (value) {
@@ -153,28 +145,13 @@ class _LoginView extends State<LoginView> {
                       if (_formKey.currentState!.validate()) {
                         String email = _emailController.text.trim();
                         String password = _passwordController.text.trim();
-                        if (email == 'admin' && password == 'admin123') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Login success"),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DashboardView(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text("Login failed"),
-                              behavior: SnackBarBehavior.floating,
-                              backgroundColor: Colors.blue,
-                            ),
-                          );
-                        }
+                        context.read<LoginViewModel>().add(
+                          LoginIntoSystemEvent(
+                            context: context,
+                            email: email,
+                            password: password,
+                          ),
+                        );
                       }
                     },
                     child: Text("Login", style: TextStyle(color: Colors.white)),

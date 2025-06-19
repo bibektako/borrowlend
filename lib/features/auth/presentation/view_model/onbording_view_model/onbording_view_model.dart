@@ -1,6 +1,7 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/auth/presentation/view/login_view.dart';
 import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_event.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_state.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
@@ -38,7 +39,13 @@ class OnbordingViewModel extends Bloc<OnbordingEvent, OnbordingState> {
     if (event.context.mounted) {
       Navigator.push(
         event.context,
-        MaterialPageRoute(builder: (_) => LoginView()),
+        MaterialPageRoute(
+          builder:
+              (context) => BlocProvider.value(
+                value: serviceLocator<LoginViewModel>(),
+                child: LoginView(),
+              ),
+        ),
       );
     }
   }
