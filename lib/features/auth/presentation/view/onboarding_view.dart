@@ -4,7 +4,8 @@ import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_event.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
-import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_event.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_event.dart'
+    hide NavigateToLoginView;
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

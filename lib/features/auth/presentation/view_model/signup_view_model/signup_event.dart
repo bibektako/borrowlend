@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 @immutable
-sealed class SignupEvent{}
-
+sealed class SignupEvent {}
 
 class SignupUserEvent extends SignupEvent {
   final BuildContext context;
@@ -10,10 +9,17 @@ class SignupUserEvent extends SignupEvent {
   final String password;
   final String confirmPassword;
 
-   SignupUserEvent({
+  SignupUserEvent({
     required this.context,
     required this.email,
     required this.password,
     required this.confirmPassword,
   });
+}
+
+class NavigateToLoginView extends SignupEvent {
+  final BuildContext context;
+  final Widget destination;
+
+  NavigateToLoginView({required this.context, required this.destination});
 }
