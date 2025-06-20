@@ -154,21 +154,41 @@ class SignupView extends StatelessWidget {
                   const SizedBox(height: 16),
 
                   // Google Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        side: const BorderSide(color: Colors.grey),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: const Text(
-                        "Register with Google",
-                        style: TextStyle(color: Colors.black),
+                  // SizedBox(
+                  //   width: double.infinity,
+                  //   height: 48,
+                  //   child: ElevatedButton(
+                  //     style: ElevatedButton.styleFrom(
+                  //       backgroundColor: Colors.white,
+                  //       side: const BorderSide(color: Colors.grey),
+                  //       shape: RoundedRectangleBorder(
+                  //         borderRadius: BorderRadius.circular(8),
+                  //       ),
+                  //     ),
+                  //     onPressed: () {},
+                  //     child: const Text(
+                  //       "Register with Google",
+                  //       style: TextStyle(color: Colors.black),
+                  //     ),
+                  //   ),
+                  // ),
+                  SizedBox(width: double.infinity, height: 24),
+                  Container(
+                    alignment: Alignment.bottomCenter,
+                    child: RichText(
+                      text: const TextSpan(
+                        text: "Already have an account? ",
+                        style: TextStyle(color: Colors.grey, fontSize: 20),
+                        children: <TextSpan>[
+                          TextSpan(
+                            text: "Login here",
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontSize: 20,
+                              fontFamily: 'Inter Bold',
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
