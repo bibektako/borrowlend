@@ -43,7 +43,12 @@ class SignupViewModel extends Bloc<SignupEvent, SignupState> {
     emit(state.copyWith(isLoading: true));
 
     final result = await _createUserUsecase(
-      CreateUserUsecaseParams(email: event.email, password: event.password),
+      CreateUserUsecaseParams(
+        username: event.username,
+        email: event.email,
+        phone: event.phone,
+        password: event.password,
+      ),
     );
     result.fold(
       (l) {
