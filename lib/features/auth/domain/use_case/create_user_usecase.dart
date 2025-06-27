@@ -6,64 +6,56 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 
 class CreateUserUsecaseParams extends Equatable {
-  final String? username;
+  final String username;
   final String email;
-  final String? phone;
+  final String phone;
   final String password;
   final String? location;
   final String? bio;
 
-  const CreateUserUsecaseParams({  
-    this.username,
+  const CreateUserUsecaseParams({
+    required this.username,
     required this.email,
-    this.phone,
+    required this.phone,
     required this.password,
     this.location,
     this.bio,
   });
 
   const CreateUserUsecaseParams.initial()
-      : 
-        username = '',
-        email = '',
-        phone = '',
-        password = '',
-        location = '',
-        bio = '';
+    : username = '',
+      email = '',
+      phone = '',
+      password = '',
+      location = '',
+      bio = '';
 
   @override
-  List<Object?> get props => [
-        
-        username,
-        email,
-        phone,
-        password,
-        location,
-        bio,
-      ];
+  List<Object?> get props => [username, email, phone, password, location, bio];
 }
 
 // usecase with params
 
-class CreateUserUsecase implements UsecaseWithParams <void, CreateUserUsecaseParams>{
+class CreateUserUsecase
+    implements UsecaseWithParams<void, CreateUserUsecaseParams> {
   final IUserRepository _userRepository;
 
-  CreateUserUsecase({required IUserRepository userRepository}) : _userRepository = userRepository;
+  CreateUserUsecase({required IUserRepository userRepository})
+    : _userRepository = userRepository;
 
   @override
   Future<Either<Failure, void>> call(CreateUserUsecaseParams params) {
     //converting to entity
     final user = UserEntity(
-     
-  username: params.username,
-  email: params.email,
-  phone: params.phone,
-  password: params.password,
-  location: params.location,
-  bio: params.bio,
+      username: params.username,
+      email: params.email,
+      phone: params.phone,
+      password: params.password,
+      location: params.location,
+      bio: params.bio,
     );
-  
-  // call the repository to register the student
-  return _userRepository.createUser(user);
-}
+
+    // call the repository to register the student
+    return _userRepository.createUser(user);
+  }
 }

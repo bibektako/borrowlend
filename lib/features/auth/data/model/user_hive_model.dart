@@ -10,11 +10,11 @@ class UserHiveModel extends Equatable {
   @HiveField(0)
   final String? userId;
   @HiveField(1)
-  final String? username;
+  final String username;
   @HiveField(2)
   final String email;
   @HiveField(3)
-  final String? phone;
+  final String phone;
   @HiveField(4)
   final String password;
   @HiveField(5)
@@ -25,8 +25,8 @@ class UserHiveModel extends Equatable {
   UserHiveModel({
     String? userId,
     required this.email,
-    this.username,
-    this.phone,
+    required this.username,
+    required this.phone,
     required this.password,
     this.bio,
     this.location,

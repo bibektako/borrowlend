@@ -11,9 +11,9 @@ class LocalDatabaseFailure extends Failure{
 }
 
 class RemoteDatabaseFailure extends Failure{
-  final int statusCode;
+  final int? statusCode;
 
-  RemoteDatabaseFailure({required this.statusCode, required super.message});
+  RemoteDatabaseFailure({ this.statusCode, required super.message});
 }
 
 class SharedPreferencesFailure extends Failure{
