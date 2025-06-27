@@ -9,6 +9,7 @@ class SignupView extends StatelessWidget {
 
   // Controllers and Keys are now final properties of the StatelessWidget
   final _formKey = GlobalKey<FormState>();
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -40,14 +41,14 @@ class SignupView extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 30,
-                      fontStyle: FontStyle.italic,
+                      fontFamily: 'Inter Italic',
                     ),
                   ),
                   const SizedBox(height: 8),
 
                   const Text(
                     "Create new account",
-                    style: TextStyle(color: Colors.grey, fontSize: 18),
+                    style: TextStyle(color: Colors.grey, fontSize: 18,),
                   ),
                   const SizedBox(height: 32),
 
