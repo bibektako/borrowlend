@@ -68,14 +68,14 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     final result = await _loginUsecase(
       LoginUserUsecaseParams(email: event.email, password: event.password),
     );
-
+    debugPrint(' debuggung testing' + result.toString());
     result.fold(
       (failure) {
         emit(state.copyWith(isLoading: false, isSuccess: false));
 
         showMySnackBar(
           context: event.context,
-          message: 'Invalid credentials. Please try again.',
+          message: 'Invalid credentials. Please try again and again.',
           color: Colors.red,
         );
       },

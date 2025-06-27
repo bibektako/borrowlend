@@ -4,35 +4,31 @@ import 'package:borrowlend/features/auth/data/data_source/user_data_source.dart'
 import 'package:borrowlend/features/auth/data/model/user_api_model.dart';
 import 'package:borrowlend/features/auth/domain/entity/user_entity.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
-class UserRemoteDatasource  implements IUserDataSource{
-  final ApiService  _apiService;
-  UserRemoteDatasource({ required ApiService apiService}) : _apiService = apiService;
+class UserRemoteDatasource implements IUserDataSource {
+  final ApiService _apiService;
+  UserRemoteDatasource({required ApiService apiService})
+    : _apiService = apiService;
 
   @override
-  Future<void> createUser(UserEntity user) async{
-   try {
-    final userAPiModel = UserApiModel.formEntity(user);
-    final response = await _apiService.dio.post(
-      ApiEndpoints.register,
-      data:  userAPiModel.toJson(),
-    );
-    if (response.statusCode == 200){
-      return;
-    }else{
-      throw Exception(
-        'Failed to register user: ${response.statusMessage}'
+  Future<void> createUser(UserEntity user) async {
+    try {
+      final userAPiModel = UserApiModel.fromEntity(user);
+      final response = await _apiService.dio.post(
+        ApiEndpoints.register,
+        data: userAPiModel.toJson(),
       );
+      if (response.statusCode == 201) {
+        return;
+      } else {
+        throw Exception('Failed to register user: ${response.statusMessage}');
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to register user: ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to register student: $e');
     }
-    
-     
-   }on DioException catch (e){
-    throw Exception('Failed to register user: ${e.message}');
-   } 
-   
-   catch (e) {
-     throw Exception('Failed to register student: $e');
-   }
   }
 
   @override
@@ -48,9 +44,23 @@ class UserRemoteDatasource  implements IUserDataSource{
   }
 
   @override
-  Future<String> loginUser(String email, String password) {
-    // TODO: implement loginUser
-    throw UnimplementedError();
+  Future<String> loginUser(String email, String password) async {
+    try {
+      final response = await _apiService.dio.post(
+        ApiEndpoints.login,
+        data: {'email': email, 'password': password},
+      );
+      debugPrint(response.data);
+      if (response.statusCode == 200) {
+        final str = response.data['token'];
+        return str;
+      } else {
+        throw Exception(response.statusMessage);
+      }
+    } on DioException catch (e) {
+      throw Exception('Failed to Login : ${e.message}');
+    } catch (e) {
+      throw Exception('Failed to login User : $e');
+    }
   }
-
 }

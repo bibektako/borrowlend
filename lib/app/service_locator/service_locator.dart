@@ -73,9 +73,14 @@ Future _initAuthModule() async {
     ()=> CreateUserUsecase(userRepository: serviceLocator<UserRemoteRepository>())
   );
 
-  serviceLocator.registerFactory(
+  // serviceLocator.registerFactory(
+  //   () =>
+  //       LoginUserUsecase(userRepository: serviceLocator<UserLocalRepository>()),
+  // );
+
+   serviceLocator.registerFactory(
     () =>
-        LoginUserUsecase(userRepository: serviceLocator<UserLocalRepository>()),
+        LoginUserUsecase(userRepository: serviceLocator<UserRemoteRepository>()),
   );
 
   

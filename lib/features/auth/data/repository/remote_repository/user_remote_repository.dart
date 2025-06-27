@@ -34,8 +34,12 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(String email, String password) {
-    // TODO: implement loginUser
-    throw UnimplementedError();
+  Future<Either<Failure, String>> loginUser(String email, String password) async{
+   try {
+     final token = await _userRemoteDatasource.loginUser(email, password);
+     return Right(token);
+   } catch (e) {
+     return Left(RemoteDatabaseFailure(message: e.toString()));
+   }
   }
 }
