@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/core/network/api_service.dart';
 import 'package:borrowlend/features/auth/data/data_source/user_data_source.dart';
@@ -51,16 +53,36 @@ class UserRemoteDatasource implements IUserDataSource {
         data: {'email': email, 'password': password},
       );
       debugPrint(response.data);
-      if (response.statusCode == 200) {
-        final str = response.data['token'];
-        return str;
+
+      if (response.statusCode == 200 && response.data != null) {
+        // Dio should parse JSON automatically, but we add checks for safety.
+        // 1. Ensure the response data is a Map (a JSON object).
+        if (response.data is! Map<String, dynamic>) {
+          throw Exception('Invalid response format. Expected a JSON object.');
+        }
+        final Map<String, dynamic> responseData = response.data;
+
+        // 2. Check if the 'token' key exists and is the correct type (String).
+        if (responseData.containsKey('token') &&
+            responseData['token'] is String) {
+          final String token = responseData['token'];
+          return token;
+        } else {
+          // This will throw a more specific error if the token is missing or not a string.
+          throw Exception(
+            'Login successful, but the "token" is missing or not a String.',
+          );
+        }
       } else {
-        throw Exception(response.statusMessage);
+        // Handle non-200 status codes or null data.
+        throw Exception('Login failed: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      throw Exception('Failed to Login : ${e.message}');
+      // Re-throw Dio specific errors for more clarity in logs.
+      throw Exception('Network Error: ${e.message}');
     } catch (e) {
-      throw Exception('Failed to login User : $e');
+      // Catch our own exceptions or any other parsing errors.
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 }
