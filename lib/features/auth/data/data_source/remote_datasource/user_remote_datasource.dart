@@ -21,68 +21,72 @@ class UserRemoteDatasource implements IUserDataSource {
         ApiEndpoints.register,
         data: userAPiModel.toJson(),
       );
-      if (response.statusCode == 201) {
-        return;
-      } else {
+      if (response.statusCode != 201) {
         throw Exception('Failed to register user: ${response.statusMessage}');
       }
     } on DioException catch (e) {
       throw Exception('Failed to register user: ${e.message}');
     } catch (e) {
-      throw Exception('Failed to register student: $e');
+      throw Exception('Failed to register user: $e');
     }
-  }
-
-  @override
-  Future<void> deleteUser(String userId) {
-    // TODO: implement deleteUser
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<String> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
   }
 
   @override
   Future<String> loginUser(String email, String password) async {
     try {
+      debugPrint("Attempting to log in user: $email");
       final response = await _apiService.dio.post(
         ApiEndpoints.login,
         data: {'email': email, 'password': password},
       );
-      debugPrint(response.data);
+      debugPrint("Received response with statusCode: ${response.statusCode}");
 
       if (response.statusCode == 200 && response.data != null) {
-        // Dio should parse JSON automatically, but we add checks for safety.
-        // 1. Ensure the response data is a Map (a JSON object).
-        if (response.data is! Map<String, dynamic>) {
-          throw Exception('Invalid response format. Expected a JSON object.');
-        }
-        final Map<String, dynamic> responseData = response.data;
+        // --- ADDED FOR DEBUGGING ---
+        debugPrint("Response data type is: ${response.data.runtimeType}");
+        debugPrint("Full response data: ${response.data.toString()}");
+        // -------------------------
 
-        // 2. Check if the 'token' key exists and is the correct type (String).
+        Map<String, dynamic> responseData;
+        if (response.data is String) {
+          responseData = jsonDecode(response.data);
+        } else {
+          responseData = response.data;
+        }
+
         if (responseData.containsKey('token') &&
             responseData['token'] is String) {
           final String token = responseData['token'];
+          // --- ADDED FOR DEBUGGING ---
+          debugPrint("Successfully extracted token: $token");
+          // -------------------------
           return token;
         } else {
-          // This will throw a more specific error if the token is missing or not a string.
           throw Exception(
             'Login successful, but the "token" is missing or not a String.',
           );
         }
       } else {
-        // Handle non-200 status codes or null data.
         throw Exception('Login failed: ${response.statusMessage}');
       }
     } on DioException catch (e) {
-      // Re-throw Dio specific errors for more clarity in logs.
+      debugPrint("DioException caught: ${e.message}");
       throw Exception('Network Error: ${e.message}');
     } catch (e) {
-      // Catch our own exceptions or any other parsing errors.
+      // This will catch our own exceptions from above.
+      debugPrint("Generic exception caught: ${e.toString()}");
       throw Exception('An unexpected error occurred: $e');
     }
+  }
+
+  // --- Unimplemented Methods ---
+  @override
+  Future<void> deleteUser(String userId) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<String> getCurrentUser() {
+    throw UnimplementedError();
   }
 }
