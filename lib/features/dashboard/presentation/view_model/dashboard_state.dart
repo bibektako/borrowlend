@@ -1,5 +1,5 @@
 import 'package:borrowlend/view/explore_view.dart';
-import 'package:borrowlend/view/home_page_view.dart';
+import 'package:borrowlend/features/home/presentation/view/home_page_view.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

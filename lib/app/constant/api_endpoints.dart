@@ -12,4 +12,7 @@ class ApiEndpoints {
   //Auth
   static const String login = "auth/login";
   static const String register = "auth/register";
+
+  //Category
+  static const String getAllCategory = "admin/category";
 }

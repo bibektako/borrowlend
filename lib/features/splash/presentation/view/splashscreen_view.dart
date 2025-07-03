@@ -25,7 +25,7 @@ class SplashscreenView extends StatelessWidget {
               children: [
                 Center(
                   child: Image.asset(
-                    'assets/image/splashlogo.png',
+                    'assets/logo/applogo.png',
                     width: 150,
                     height: 150,
                   ),

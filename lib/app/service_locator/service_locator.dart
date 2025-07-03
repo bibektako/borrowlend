@@ -10,6 +10,10 @@ import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
+import 'package:borrowlend/features/home/data/data_source/remote_data_source/category_remote_data_source.dart';
+import 'package:borrowlend/features/home/data/repository/remote_repository.dart/category_remote_repository.dart';
+import 'package:borrowlend/features/home/domain/use_case/get_all_category_usecase.dart';
+import 'package:borrowlend/features/home/presentation/view_model/home_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -84,21 +88,27 @@ Future<void> _initAuthModule() async {
   // Use Cases
   if (!serviceLocator.isRegistered<CreateUserUsecase>()) {
     serviceLocator.registerFactory(
-      () => CreateUserUsecase(userRepository: serviceLocator<UserRemoteRepository>()),
+      () => CreateUserUsecase(
+        userRepository: serviceLocator<UserRemoteRepository>(),
+      ),
     );
   }
 
   // THE FIX: Ensure LoginUserUsecase gets the UserRemoteRepository
   if (!serviceLocator.isRegistered<LoginUserUsecase>()) {
     serviceLocator.registerFactory(
-      () => LoginUserUsecase(userRepository: serviceLocator<UserRemoteRepository>()),
+      () => LoginUserUsecase(
+        userRepository: serviceLocator<UserRemoteRepository>(),
+      ),
     );
   }
 
   // View Models
   if (!serviceLocator.isRegistered<SignupViewModel>()) {
     serviceLocator.registerFactory<SignupViewModel>(
-      () => SignupViewModel(createUserUsecase: serviceLocator<CreateUserUsecase>()),
+      () => SignupViewModel(
+        createUserUsecase: serviceLocator<CreateUserUsecase>(),
+      ),
     );
   }
   if (!serviceLocator.isRegistered<LoginViewModel>()) {
@@ -106,4 +116,28 @@ Future<void> _initAuthModule() async {
       () => LoginViewModel(serviceLocator<LoginUserUsecase>()),
     );
   }
+}
+
+Future<void> _initHomeModule() async {
+  serviceLocator.registerFactory(
+    () => CategoryRemoteDataSource(apiService: serviceLocator<ApiService>()),
+  );
+
+  serviceLocator.registerFactory(
+    () => CategoryRemoteRepository(
+      categoryRemoteDataSource: serviceLocator<CategoryRemoteDataSource>(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () => GetAllCategoryUsecase(
+      categoryRepository: serviceLocator<CategoryRemoteRepository>(),
+    ),
+  );
+
+  serviceLocator.registerFactory(
+    () => HomeViewModel(
+      getAllCategoryUsecase: serviceLocator<GetAllCategoryUsecase>(),
+    ),
+  );
 }
