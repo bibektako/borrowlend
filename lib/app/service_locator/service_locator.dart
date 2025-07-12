@@ -1,3 +1,4 @@
+import 'package:borrowlend/app/shared_pref/token_shared_prefs.dart';
 import 'package:borrowlend/core/network/api_service.dart';
 import 'package:borrowlend/core/network/hive_service.dart';
 import 'package:borrowlend/features/auth/data/data_source/local_datasource/user_local_datasource.dart';
@@ -17,6 +18,7 @@ import 'package:borrowlend/features/home/presentation/view_model/home_view_model
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -25,10 +27,22 @@ Future<void> initDependencies() async {
   if (!serviceLocator.isRegistered<HiveService>()) {
     await _initHiveService();
     await _initApiService();
+    await _initSharedPrefs();
     await _initAuthModule();
     await _initSpashModule();
     await _initOnbordingModule();
   }
+}
+
+Future<void> _initSharedPrefs() async {
+  // Initialize Shared Preferences if needed
+  final sharedPrefs = await SharedPreferences.getInstance();
+  serviceLocator.registerLazySingleton(() => sharedPrefs);
+  serviceLocator.registerLazySingleton(
+    () => TokenSharedPrefs(
+      sharedPreferences: serviceLocator<SharedPreferences>(),
+    ),
+  );
 }
 
 Future<void> _initApiService() async {
@@ -99,6 +113,7 @@ Future<void> _initAuthModule() async {
     serviceLocator.registerFactory(
       () => LoginUserUsecase(
         userRepository: serviceLocator<UserRemoteRepository>(),
+        tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
       ),
     );
   }
