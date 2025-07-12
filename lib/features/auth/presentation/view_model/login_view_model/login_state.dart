@@ -1,4 +1,6 @@
-class LoginState {
+import 'package:equatable/equatable.dart';
+
+class LoginState extends Equatable {
   final bool isLoading;
   final bool isSuccess;
 
@@ -11,4 +13,7 @@ class LoginState {
       isSuccess: isSuccess ?? this.isSuccess,
     );
   }
+
+  @override
+  List<Object?> get props => [isLoading, isSuccess];
 }
