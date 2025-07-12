@@ -52,19 +52,19 @@ class SignupViewModel extends Bloc<SignupEvent, SignupState> {
     );
     result.fold(
       (l) {
-        emit(state.copyWith(isLoading: false, isSuccess: false));
-        showMySnackBar(
-          context: event.context,
-          message: l.message,
-          color: Colors.red,
-        );
+        emit(state.copyWith(isLoading: false, isSuccess: false,errorMessage: l.message));
+        // showMySnackBar(
+        //   context: event.context,
+        //   message: l.message,
+        //   color: Colors.red,
+        // );
       },
       (r) {
         emit(state.copyWith(isLoading: false, isSuccess: true));
-        showMySnackBar(
-          context: event.context,
-          message: "Registration Successful",
-        );
+        // showMySnackBar(
+        //   context: event.context,
+        //   message: "Registration Successful",
+        // );
         // add(
         //   NavigateToLoginView(context: event.context, destination: LoginView()),
         // );
