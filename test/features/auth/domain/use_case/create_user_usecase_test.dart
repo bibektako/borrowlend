@@ -68,9 +68,6 @@ void main() {
           message: 'Error creating user on the server.',
         );
 
-        // **** THE FIX IS HERE ****
-        // Instead of using any(), we specify the exact entity we expect.
-        // This makes the test more precise and avoids the error.
         when(
           () => mockUserRepository.createUser(tUserEntity),
         ).thenAnswer((_) async => const Left(tFailure));
