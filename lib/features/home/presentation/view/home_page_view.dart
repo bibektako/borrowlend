@@ -1,4 +1,4 @@
-import 'package:borrowlend/core/common/category_explorer.dart';
+import 'package:borrowlend/features/category/presentation/view/category_explorer.dart';
 import 'package:borrowlend/core/common/item_display_card.dart';
 import 'package:borrowlend/core/common/most_borrowed.dart';
 import 'package:borrowlend/core/common/slider_screen.dart';
