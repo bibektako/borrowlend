@@ -1,14 +1,16 @@
-import 'package:borrowlend/features/home/domain/entity/category_entity.dart';
+import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-part 'category_api_model.g.dart';
+part '../../../home/data/model/category_api_model.g.dart';
 
 @JsonSerializable()
 class CategoryApiModel extends Equatable{
   @JsonKey(name: '_id')
   final String? categoryId;
+  @JsonKey(name: 'name')
   final String category;
+  @JsonKey(name: 'imageUrl')
   final String category_image;
 
   const CategoryApiModel({

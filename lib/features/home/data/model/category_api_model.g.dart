@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'category_api_model.dart';
+part of '../../../category/data/model/category_api_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator

@@ -5,16 +5,15 @@ import 'package:borrowlend/features/auth/data/data_source/local_datasource/user_
 import 'package:borrowlend/features/auth/data/data_source/remote_datasource/user_remote_datasource.dart';
 import 'package:borrowlend/features/auth/data/repository/local_repository/user_local_repository.dart';
 import 'package:borrowlend/features/auth/data/repository/remote_repository/user_remote_repository.dart';
-import 'package:borrowlend/features/auth/domain/repository/user_repository.dart'; // Import the abstract repository
 import 'package:borrowlend/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
-import 'package:borrowlend/features/home/data/data_source/remote_data_source/category_remote_data_source.dart';
-import 'package:borrowlend/features/home/data/repository/remote_repository.dart/category_remote_repository.dart';
-import 'package:borrowlend/features/home/domain/use_case/get_all_category_usecase.dart';
-import 'package:borrowlend/features/home/presentation/view_model/home_view_model.dart';
+import 'package:borrowlend/features/category/data/data_source/remote_data_source/category_remote_data_source.dart';
+import 'package:borrowlend/features/category/data/repository/remote_repository/category_remote_repository.dart';
+import 'package:borrowlend/features/category/domain/use_case/get_all_category_usecase.dart';
+import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -31,6 +30,7 @@ Future<void> initDependencies() async {
     await _initAuthModule();
     await _initSpashModule();
     await _initOnbordingModule();
+    await _initCategoryModule();
   }
 }
 
@@ -137,6 +137,12 @@ Future<void> _initHomeModule() async {
   serviceLocator.registerFactory(
     () => CategoryRemoteDataSource(apiService: serviceLocator<ApiService>()),
   );
+}
+
+Future<void> _initCategoryModule() async {
+  serviceLocator.registerFactory(
+    () => CategoryRemoteDataSource(apiService: serviceLocator<ApiService>()),
+  );
 
   serviceLocator.registerFactory(
     () => CategoryRemoteRepository(
@@ -149,9 +155,8 @@ Future<void> _initHomeModule() async {
       categoryRepository: serviceLocator<CategoryRemoteRepository>(),
     ),
   );
-
   serviceLocator.registerFactory(
-    () => HomeViewModel(
+    () => CategoryBloc(
       getAllCategoryUsecase: serviceLocator<GetAllCategoryUsecase>(),
     ),
   );
