@@ -14,6 +14,14 @@ import 'package:borrowlend/features/category/data/data_source/remote_data_source
 import 'package:borrowlend/features/category/data/repository/remote_repository/category_remote_repository.dart';
 import 'package:borrowlend/features/category/domain/use_case/get_all_category_usecase.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
+import 'package:borrowlend/features/items/data/data_source/remote_data_source/item_remote_datasource.dart';
+import 'package:borrowlend/features/items/data/repository/remote_repository/item_remote_repository.dart';
+import 'package:borrowlend/features/items/domain/repository/item_repository.dart';
+import 'package:borrowlend/features/items/domain/use_case/create_item_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/delete_item_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/get_all_items_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/update_item_usecase.dart';
+import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -31,6 +39,7 @@ Future<void> initDependencies() async {
     await _initSpashModule();
     await _initOnbordingModule();
     await _initCategoryModule();
+    await _initItemModule();
   }
 }
 
@@ -59,7 +68,11 @@ Future<void> _initHiveService() async {
 
 Future<void> _initSpashModule() async {
   if (!serviceLocator.isRegistered<SplashscreenViewModel>()) {
-    serviceLocator.registerFactory(() => SplashscreenViewModel());
+    serviceLocator.registerFactory(
+      () => SplashscreenViewModel(
+        tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+      ),
+    );
   }
 }
 
@@ -158,6 +171,55 @@ Future<void> _initCategoryModule() async {
   serviceLocator.registerFactory(
     () => CategoryBloc(
       getAllCategoryUsecase: serviceLocator<GetAllCategoryUsecase>(),
+    ),
+  );
+}
+
+//items
+Future<void> _initItemModule() async {
+  // 1. Register Datasource
+  serviceLocator.registerFactory<ItemRemoteDatasource>(
+    () => ItemRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  );
+
+  // 2. Register Repository
+  serviceLocator.registerFactory<IItemRepository>(
+    () => ItemRemoteRepository(
+      itemRemoteDatasource: serviceLocator<ItemRemoteDatasource>(),
+    ),
+  );
+
+  // --- Domain Layer ---
+
+  // 3. Register Use Cases
+  serviceLocator.registerFactory<GetAllItemsUsecase>(
+    () => GetAllItemsUsecase(itemRepository: serviceLocator<IItemRepository>()),
+  );
+
+  serviceLocator.registerFactory<CreateItemUsecase>(
+    () => CreateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
+  );
+
+  serviceLocator.registerFactory<UpdateItemUsecase>(
+    () => UpdateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
+  );
+
+  serviceLocator.registerFactory<DeleteItemUsecase>(
+    () => DeleteItemUsecase(
+      itemRepository: serviceLocator<IItemRepository>(),
+      tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+    ),
+  );
+
+  // --- Presentation Layer ---
+
+  // 4. Register ViewModel (BLoC)
+  serviceLocator.registerFactory<ItemViewModel>(
+    () => ItemViewModel(
+      getAllItemsUsecase: serviceLocator<GetAllItemsUsecase>(),
+      createItemUsecase: serviceLocator<CreateItemUsecase>(),
+      updateItemUsecase: serviceLocator<UpdateItemUsecase>(),
+      deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
     ),
   );
 }

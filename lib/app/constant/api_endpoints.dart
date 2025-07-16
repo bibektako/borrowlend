@@ -15,4 +15,7 @@ class ApiEndpoints {
 
   //Category
   static const String getAllCategory = "admin/category";
+
+  // items
+  static const String getAllItems = "items";
 }

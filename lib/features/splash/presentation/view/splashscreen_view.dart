@@ -1,24 +1,23 @@
-import 'dart:async';
-
-import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
-import 'package:borrowlend/features/auth/presentation/view/onboarding_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 
+// This code is already correct and does not need changes.
 class SplashscreenView extends StatelessWidget {
   const SplashscreenView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // This safely calls the init method after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SplashscreenViewModel>().init(context);
     });
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(12),
-
+          padding: const EdgeInsets.all(12),
           child: Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -30,7 +29,8 @@ class SplashscreenView extends StatelessWidget {
                     height: 150,
                   ),
                 ),
-                CircularProgressIndicator(color: Colors.blue),
+                const SizedBox(height: 20), // Added some space
+                const CircularProgressIndicator(color: Colors.blue),
               ],
             ),
           ),
