@@ -12,6 +12,15 @@ final class NavigateToSearchView extends HomeEvent{
 }
 
 
+final class NavigateToPage extends HomeEvent {
+  final BuildContext context;
+  final Widget destination; 
+
+  NavigateToPage({
+    required this.context,
+    required this.destination,
+  });
+}
 
 
 
