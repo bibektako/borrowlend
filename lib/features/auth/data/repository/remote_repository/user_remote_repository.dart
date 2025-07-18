@@ -45,4 +45,10 @@ class UserRemoteRepository implements IUserRepository {
       return Left(RemoteDatabaseFailure(message: e.toString()));
     }
   }
+  
+  @override
+  Future<Either<Failure, void>> logout() {
+    // TODO: implement logout
+    throw UnimplementedError();
+  }
 }

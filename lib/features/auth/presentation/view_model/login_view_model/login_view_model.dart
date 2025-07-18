@@ -1,6 +1,7 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart';
+import 'package:borrowlend/features/auth/presentation/view/forgot_password_view.dart';
 import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_event.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_state.dart';
@@ -36,17 +37,17 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     }
   }
 
-  // void _onNavigateToForgotPasswordView(
-  //   NavigateToForgotPasswordView event,
-  //   Emitter<LoginState> emit,
-  // ) {
-  //   if (event.context.mounted) {
-  //     Navigator.push(
-  //       event.context,
-  //       MaterialPageRoute(builder: (_) => ForgotPasswordView()),
-  //     );
-  //   }
-  // }
+  void _onNavigateToForgotPasswordView(
+    NavigateToForgotPasswordView event,
+    Emitter<LoginState> emit,
+  ) {
+    if (event.context.mounted) {
+      Navigator.push(
+        event.context,
+        MaterialPageRoute(builder: (_) => ForgotPasswordView()),
+      );
+    }
+  }
 
   void _onNavigateToHomeView(
     NavigateToHomeView event,

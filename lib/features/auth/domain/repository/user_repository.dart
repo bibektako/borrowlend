@@ -8,4 +8,8 @@ abstract interface class IUserRepository{
   Future<Either<Failure,String>> loginUser( String email, String password);
   Future<Either<Failure, String>> getCurrentUser();
   Future<Either<Failure,void>> deleteUser(String userId);
+  Future<Either<Failure, void>> logout();
 }
+
+
+

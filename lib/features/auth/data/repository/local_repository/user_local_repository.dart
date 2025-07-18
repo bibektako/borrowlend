@@ -44,5 +44,11 @@ class UserLocalRepository  implements IUserRepository{
        return Left(LocalDatabaseFailure(message: 'Login failed $e'));
     }
   }
+  
+  @override
+  Future<Either<Failure, void>> logout() {
+    // TODO: implement logout
+    throw UnimplementedError();
+  }
 
 }

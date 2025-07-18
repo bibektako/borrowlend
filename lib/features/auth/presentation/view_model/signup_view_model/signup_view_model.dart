@@ -1,5 +1,4 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
-import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/auth/domain/use_case/create_user_usecase.dart';
 import 'package:borrowlend/features/auth/presentation/view/login_view.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';

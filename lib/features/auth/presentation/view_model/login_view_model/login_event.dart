@@ -38,4 +38,3 @@ class LoginIntoSystemEvent extends LoginEvent {
     required this.password,
   });
 }
-

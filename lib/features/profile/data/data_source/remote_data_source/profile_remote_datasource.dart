@@ -10,7 +10,7 @@ class ProfileRemoteDataSource {
 
   Future<UserProfileModel> getProfile() async {
     try {
-      final response = await _apiService.dio.get(ApiEndpoints.login);
+      final response = await _apiService.dio.get(ApiEndpoints.getUser);
 
       if (response.statusCode == 200) {
         return UserProfileModel.fromJson(response.data['data']);

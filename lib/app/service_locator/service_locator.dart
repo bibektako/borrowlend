@@ -22,6 +22,11 @@ import 'package:borrowlend/features/items/domain/use_case/delete_item_usecase.da
 import 'package:borrowlend/features/items/domain/use_case/get_all_items_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/update_item_usecase.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
+import 'package:borrowlend/features/profile/data/data_source/remote_data_source/profile_remote_datasource.dart';
+import 'package:borrowlend/features/profile/data/repository/profile_repository.dart';
+import 'package:borrowlend/features/profile/domain/repository/profile_repository.dart';
+import 'package:borrowlend/features/profile/domain/use_case/get_profile_usecase.dart';
+import 'package:borrowlend/features/profile/presentation/view_model/profile_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -40,6 +45,7 @@ Future<void> initDependencies() async {
     await _initOnbordingModule();
     await _initCategoryModule();
     await _initItemModule();
+    await _initProfileModule();
   }
 }
 
@@ -220,6 +226,33 @@ Future<void> _initItemModule() async {
       createItemUsecase: serviceLocator<CreateItemUsecase>(),
       updateItemUsecase: serviceLocator<UpdateItemUsecase>(),
       deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
+    ),
+  );
+}
+
+Future<void> _initProfileModule() async {
+  // Data Layer
+  serviceLocator.registerFactory<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSource(serviceLocator<ApiService>()),
+  );
+  serviceLocator.registerFactory<IProfileRepository>(
+    () => ProfileRepositoryImpl(serviceLocator<ProfileRemoteDataSource>()),
+  );
+
+  // Domain Layer
+  serviceLocator.registerFactory<GetProfileUseCase>(
+    () => GetProfileUseCase(serviceLocator<IProfileRepository>()),
+  );
+  // serviceLocator.registerFactory<UpdateProfileUseCase>(
+  //   () => UpdateProfileUseCase(serviceLocator<IProfileRepository>()),
+  // );
+
+  // Presentation Layer
+  serviceLocator.registerFactory<ProfileViewModel>(
+    () => ProfileViewModel(
+      getProfileUseCase: serviceLocator<GetProfileUseCase>(),
+      // updateProfileUseCase: serviceLocator<UpdateProfileUseCase>(),
+      // logoutUseCase: serviceLocator<LogoutUseCase>(), // Dependency for logout logic
     ),
   );
 }

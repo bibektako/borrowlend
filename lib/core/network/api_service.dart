@@ -1,4 +1,5 @@
 import 'package:borrowlend/app/constant/api_endpoints.dart';
+import 'package:borrowlend/core/network/auth_interceptor.dart';
 import 'package:borrowlend/core/network/dio_error_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
@@ -8,25 +9,23 @@ class ApiService {
 
   Dio get dio => _dio;
 
-  ApiService(this._dio){
+  ApiService(this._dio) {
     _dio
-    ..options.baseUrl = ApiEndpoints.baseUrl
-    ..options.connectTimeout = ApiEndpoints.connectionTimeout
-    ..options.receiveTimeout = ApiEndpoints.receiveTimeout
-    ..interceptors.add(DioErrorInterceptor())
-    ..interceptors.add(
-      PrettyDioLogger(
-        requestHeader: true,
-        requestBody: true,
-        responseHeader: true
-      ),
-
+      ..options.baseUrl = ApiEndpoints.baseUrl
+      ..options.connectTimeout = ApiEndpoints.connectionTimeout
+      ..options.receiveTimeout = ApiEndpoints.receiveTimeout
+      ..interceptors.add(DioErrorInterceptor())
+      ..interceptors.add(AuthInterceptor())
+      ..interceptors.add(
+        PrettyDioLogger(
+          requestHeader: true,
+          requestBody: true,
+          responseHeader: true,
+        ),
       )
       ..options.headers = {
         'Accepts': 'application/json',
         'Content-Type': 'application/json',
       };
-    
   }
-  
 }

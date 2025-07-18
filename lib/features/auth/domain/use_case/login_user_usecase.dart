@@ -34,10 +34,12 @@ class LoginUserUsecase
       params.email,
       params.password,
     );
-
     return result.fold((failure) => Left(failure), (token) async {
       await _tokenSharedPrefs.saveToken(token);
       return Right(token);
+      
     });
+    
+    
   }
 }
