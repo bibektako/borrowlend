@@ -26,6 +26,7 @@ import 'package:borrowlend/features/items/domain/use_case/bookmark/remove_bookma
 import 'package:borrowlend/features/items/domain/use_case/create_item_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/delete_item_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/get_all_items_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/get_my_items_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/update_item_usecase.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
 import 'package:borrowlend/features/profile/data/data_source/remote_data_source/profile_remote_datasource.dart';
@@ -193,9 +194,9 @@ Future<void> _initCategoryModule() async {
 //items
 Future<void> _initItemModule() async {
   // Data Sources
-  if (!serviceLocator.isRegistered<ItemRemoteDatasource>()) {
-    serviceLocator.registerFactory<ItemRemoteDatasource>(
-      () => ItemRemoteDatasource(apiService: serviceLocator<ApiService>()),
+  if (!serviceLocator.isRegistered<ItemRemoteDataSource>()) {
+    serviceLocator.registerFactory<ItemRemoteDataSource>(
+      () => ItemRemoteDataSource(apiService: serviceLocator<ApiService>()),
     );
   }
   if (!serviceLocator.isRegistered<BookmarkRemoteDataSource>()) {
@@ -208,7 +209,7 @@ Future<void> _initItemModule() async {
   if (!serviceLocator.isRegistered<IItemRepository>()) {
     serviceLocator.registerFactory<IItemRepository>(
       () => ItemRemoteRepository(
-        itemRemoteDatasource: serviceLocator<ItemRemoteDatasource>(),
+        itemRemoteDatasource: serviceLocator<ItemRemoteDataSource>(),
       ),
     );
   }
@@ -261,6 +262,7 @@ Future<void> _initItemModule() async {
       () => GetBookmarksUseCase(serviceLocator<IBookmarkRepository>()),
     );
   }
+  serviceLocator.registerFactory(() => GetMyItemsUseCase(serviceLocator()));
 
   if (!serviceLocator.isRegistered<ItemViewModel>()) {
     serviceLocator.registerLazySingleton<ItemViewModel>(
@@ -271,7 +273,8 @@ Future<void> _initItemModule() async {
         deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
         addBookmarkUseCase: serviceLocator<AddBookmarkUseCase>(),
         removeBookmarkUseCase: serviceLocator<RemoveBookmarkUseCase>(),
-        getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(),
+        getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(), 
+        getMyItemsUsecase: serviceLocator<GetMyItemsUseCase>(),
       ),
     );
   }

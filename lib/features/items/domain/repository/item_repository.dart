@@ -5,6 +5,8 @@ import 'package:dartz/dartz.dart';
 abstract interface class IItemRepository {
   Future<Either<Failure, List<ItemEntity>>> getAllItems();
 
+  Future<Either<Failure, List<ItemEntity>>> getMyItems();
+
   Future<Either<Failure, void>> createItem(ItemEntity item);
 
   Future<Either<Failure, void>> updateItem(ItemEntity item);

@@ -1,64 +1,83 @@
 import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/core/network/api_service.dart';
+import 'package:borrowlend/features/items/data/data_source/item_datasource.dart';
 import 'package:borrowlend/features/items/data/dto/get_all_items_dto.dart';
 import 'package:borrowlend/features/items/data/model/item_api_model.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:dio/dio.dart';
 
-class ItemRemoteDatasource {
+class ItemRemoteDataSource implements IItemDataSource {
   final ApiService _apiService;
 
-  ItemRemoteDatasource({required ApiService apiService})
-      : _apiService = apiService;
+  ItemRemoteDataSource({required ApiService apiService})
+    : _apiService = apiService;
 
-  Future<List<ItemEntity>> getAllItems() async {
+  @override
+  Future<List<ItemApiModel>> getAllItems() async {
     try {
-      final response = await _apiService.dio.get(ApiEndpoints.getAllItems);
+      final response = await _apiService.dio.get(ApiEndpoints.items);
 
       if (response.statusCode == 200) {
         final getAllItemsDto = GetAllItemsDto.fromJson(response.data);
-        return ItemApiModel.toEntityList(getAllItemsDto.data);
+
+        return getAllItemsDto.data;
       } else {
         throw Exception('Failed to get items: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      throw Exception('Failed to get items: $e');
+      throw Exception(
+        'Failed to get items: ${e.response?.data['message'] ?? e.message}',
+      );
     }
   }
 
-  // Future<void> createItem(ItemEntity item) async {
-  //   try {
-  //     final itemApiModel = ItemApiModel.fromEntity(item);
-  //     // Assuming your ApiEndpoints file has a 'createItem' constant
-  //     await _apiService.dio.post(
-  //       ApiEndpoints.createItem,
-  //       data: itemApiModel.toJson(),
-  //     );
-  //   } on DioException catch (e) {
-  //     throw Exception('Failed to create item: $e');
-  //   }
-  // }
+  @override
+  Future<void> createItem(FormData formData) async {
+    try {
+      await _apiService.dio.post(
+        ApiEndpoints.items, // Your backend route is POST /api/items
+        data: formData,
+      );
+    } on DioException catch (e) {
+      throw Exception(
+        'Failed to create item: ${e.response?.data['message'] ?? e.message}',
+      );
+    }
+  }
 
-  // Future<void> updateItem(ItemEntity item) async {
-  //   try {
-  //     final itemApiModel = ItemApiModel.fromEntity(item);
-  //     // Backend expects: /items/:id
-  //     await _apiService.dio.patch( // Or PUT, depending on your API design
-  //       '${ApiEndpoints.updateItem}/${item.id}',
-  //       data: itemApiModel.toJson(),
-  //     );
-  //   } on DioException catch (e) {
-  //     throw Exception('Failed to update item: $e');
-  //   }
-  // }
+  @override
+  Future<void> updateItem(String itemId, FormData formData) async {
+    try {
+      await _apiService.dio.put(
+        '${ApiEndpoints.items}/$itemId',
+        data: formData,
+      );
+    } on DioException catch (e) {
+      throw Exception(
+        'Failed to update item: ${e.response?.data['message'] ?? e.message}',
+      );
+    }
+  }
 
-  // Future<void> deleteItem(String id) async {
-  //   try {
-  //     // Backend expects: /items/:id
-  //     // Your ApiService should handle adding the Authorization header
-  //     await _apiService.dio.delete('${ApiEndpoints.deleteItem}/$id');
-  //   } on DioException catch (e) {
-  //     throw Exception('Failed to delete item: $e');
-  //   }
-  // }
+  @override
+  Future<void> deleteItem(String itemId) async {
+    try {
+      await _apiService.dio.delete('${ApiEndpoints.items}/$itemId');
+    } on DioException catch (e) {
+      throw Exception(
+        'Failed to delete item: ${e.response?.data['message'] ?? e.message}',
+      );
+    }
+  }
+  
+  @override
+  Future<List<ItemApiModel>> getMyItems() async{
+   try {
+    final response = await _apiService.dio.get(ApiEndpoints.getMyItems);
+    final List<dynamic> data = response.data['data'];
+    return data.map((itemJson) => ItemApiModel.fromJson(itemJson)).toList();
+  } on DioException catch (e) {
+    throw Exception('Failed to get your items: ${e.response?.data['message'] ?? e.message}');
+  }
+  }
 }

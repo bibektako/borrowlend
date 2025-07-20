@@ -37,27 +37,21 @@ class ProfileView extends StatelessWidget {
   }
 }
 
-/// The body of the ProfileView, which rebuilds based on the ProfileState.
 class _ProfileViewBody extends StatelessWidget {
   const _ProfileViewBody();
 
   @override
   Widget build(BuildContext context) {
-    // BlocBuilder handles rebuilding the UI in response to state changes.
     return BlocBuilder<ProfileViewModel, ProfileState>(
       builder: (context, state) {
-        // Show a loading indicator while fetching data.
         if (state.status == ProfileStatus.loading && state.userProfile == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // Show an error message if something went wrong.
         if (state.status == ProfileStatus.failure) {
           return Center(child: Text(state.errorMessage ?? "An error occurred."));
         }
 
-        // Once data is loaded (or if there's an error but we still have old data),
-        // show the main profile content.
         return RefreshIndicator(
           onRefresh: () async {
             context.read<ProfileViewModel>().add(LoadUserProfile());
@@ -78,7 +72,6 @@ class _ProfileViewBody extends StatelessWidget {
     );
   }
 
-  /// Builds the top section with the user's avatar, name, and email.
   Widget _buildProfileHeader(UserProfileEntity? user) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
@@ -86,7 +79,6 @@ class _ProfileViewBody extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 35,
-            // TODO: Replace with actual network image logic later
             backgroundColor: Colors.grey.shade200,
             child: const Icon(Icons.person, size: 35, color: Colors.grey),
           ),
@@ -115,7 +107,6 @@ class _ProfileViewBody extends StatelessWidget {
     );
   }
 
-  /// Builds the list of menu items.
   Widget _buildProfileMenuList(BuildContext context) {
     final viewModel = context.read<ProfileViewModel>();
     
@@ -125,7 +116,6 @@ class _ProfileViewBody extends StatelessWidget {
           icon: Icons.person_outline,
           title: "My Profile",
           onTap: () {
-            // Dispatch a navigation event to the ViewModel.
             viewModel.add(NavigateToProfilePage(
               context: context,
               destination: const EditProfileView(),
@@ -160,7 +150,6 @@ class _ProfileViewBody extends StatelessWidget {
   }
 }
 
-/// A reusable widget for a single menu item in the profile list.
 class _ProfileMenuItem extends StatelessWidget {
   final IconData icon;
   final String title;

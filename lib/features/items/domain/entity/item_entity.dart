@@ -1,3 +1,4 @@
+import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class ItemEntity extends Equatable {
@@ -10,6 +11,8 @@ class ItemEntity extends Equatable {
   final OwnerEntity? owner;
   final CategoryEntity category;
   final bool isBookmarked;
+    final String status;
+
 
   const ItemEntity({
      this.id,
@@ -21,6 +24,8 @@ class ItemEntity extends Equatable {
      this.owner,
     required this.category,
     this.isBookmarked = false,
+    this.status = 'available', 
+
   });
 
   @override
@@ -33,7 +38,8 @@ class ItemEntity extends Equatable {
         rating,
         owner,
         category,
-        isBookmarked
+        isBookmarked,
+        status
       ];
 
   ItemEntity copyWith({
@@ -46,6 +52,8 @@ class ItemEntity extends Equatable {
     OwnerEntity? owner,
     CategoryEntity? category,
     bool? isBookmarked,
+    String? status
+
   }) {
     return ItemEntity(
       id: id ?? this.id,
@@ -57,6 +65,7 @@ class ItemEntity extends Equatable {
       owner: owner ?? this.owner,
       category: category ?? this.category,
       isBookmarked: isBookmarked ?? this.isBookmarked,
+      status: status ?? this.status
     );
   }
 }
@@ -78,15 +87,3 @@ class OwnerEntity extends Equatable {
   List<Object?> get props => [id, username, location, ];
 }
 
-class CategoryEntity extends Equatable {
-  final String id;
-  final String name;
-
-  const CategoryEntity({
-    required this.id,
-    required this.name,
-  });
-
-  @override
-  List<Object?> get props => [id, name];
-}

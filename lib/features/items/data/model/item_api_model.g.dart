@@ -9,7 +9,7 @@ part of 'item_api_model.dart';
 ItemApiModel _$ItemApiModelFromJson(Map<String, dynamic> json) => ItemApiModel(
       id: json['_id'] as String?,
       name: json['name'] as String?,
-      description: json['description'] as String,
+      description: json['description'] as String?,
       imageUrls: (json['imageUrls'] as List<dynamic>?)
           ?.map((e) => e as String)
           .toList(),
@@ -22,6 +22,7 @@ ItemApiModel _$ItemApiModelFromJson(Map<String, dynamic> json) => ItemApiModel(
       category: json['category'] == null
           ? null
           : CategoryApiModel.fromJson(json['category'] as Map<String, dynamic>),
+      status: json['status'] as String?,
     );
 
 Map<String, dynamic> _$ItemApiModelToJson(ItemApiModel instance) =>
@@ -35,6 +36,7 @@ Map<String, dynamic> _$ItemApiModelToJson(ItemApiModel instance) =>
       'numReviews': instance.numReviews,
       'owner': instance.owner?.toJson(),
       'category': instance.category?.toJson(),
+      'status': instance.status,
     };
 
 OwnerApiModel _$OwnerApiModelFromJson(Map<String, dynamic> json) =>
@@ -53,12 +55,14 @@ Map<String, dynamic> _$OwnerApiModelToJson(OwnerApiModel instance) =>
 
 CategoryApiModel _$CategoryApiModelFromJson(Map<String, dynamic> json) =>
     CategoryApiModel(
-      id: json['_id'] as String,
-      name: json['name'] as String,
+      id: json['_id'] as String?,
+      name: json['name'] as String?,
+      imageUrl: json['category_image'] as String?,
     );
 
 Map<String, dynamic> _$CategoryApiModelToJson(CategoryApiModel instance) =>
     <String, dynamic>{
       '_id': instance.id,
       'name': instance.name,
+      'category_image': instance.imageUrl,
     };

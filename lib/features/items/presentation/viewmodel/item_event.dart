@@ -1,3 +1,4 @@
+import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:equatable/equatable.dart';
 
@@ -10,29 +11,18 @@ sealed class ItemEvent extends Equatable {
 
 class LoadAllItemsEvent extends ItemEvent {}
 
+class LoadMyItemsEvent extends ItemEvent {}
+
+
 class CreateItemEvent extends ItemEvent {
-  final String name;
-  final String description;
-  final List<String> imageUrls;
-  final double borrowingPrice;
-  final CategoryEntity category;
+  final ItemEntity item;
 
   const CreateItemEvent({
-    required this.name,
-    required this.description,
-    required this.imageUrls,
-    required this.borrowingPrice,
-    required this.category,
+    required this.item,
   });
 
   @override
-  List<Object> get props => [
-    name,
-    description,
-    imageUrls,
-    borrowingPrice,
-    category,
-  ];
+  List<Object> get props => [item];
 }
 
 class UpdateItemEvent extends ItemEvent {
@@ -67,5 +57,27 @@ class ToggleBookmarkEvent extends ItemEvent {
 }
 
 class LoadBookmarkedItemsEvent extends ItemEvent {}
+
+
+
+class FormFieldChanged extends ItemEvent {
+  final String? name;
+  final String? description;
+  final String? price;
+    final CategoryEntity? category;
+
+  final List<String>? imagePaths;
+
+  const FormFieldChanged({this.name, this.description, this.price, this.category, this.imagePaths});
+}
+
+class LoadItemForEditing extends ItemEvent {
+  final ItemEntity item;
+  const LoadItemForEditing({required this.item});
+}
+
+class SubmitAddItemForm extends ItemEvent {}
+
+class SubmitEditItemForm extends ItemEvent {}
 
 

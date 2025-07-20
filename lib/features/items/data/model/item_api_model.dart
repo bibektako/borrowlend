@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -9,24 +12,27 @@ class ItemApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? id;
   final String? name;
-  final String description;
+  final String? description;
   final List<String>? imageUrls;
   final double? borrowingPrice;
   final double? rating;
   final int? numReviews;
   final OwnerApiModel? owner;
   final CategoryApiModel? category;
+  final String? status;
+
 
   const ItemApiModel({
     this.id,
     this.name,
-    required this.description,
+     this.description,
     this.imageUrls,
     this.borrowingPrice,
     this.rating,
     this.numReviews,
     this.owner,
     this.category,
+    this.status
   });
 
   factory ItemApiModel.fromJson(Map<String, dynamic> json) =>
@@ -38,15 +44,17 @@ class ItemApiModel extends Equatable {
     return ItemEntity(
       id: id ?? '',
       name: name ?? 'Unnamed Item',
-      description: description,
+      description: description ?? "no description",
       imageUrls: imageUrls ?? [],
       borrowingPrice: borrowingPrice ?? 0.0,
       rating: rating ?? 0.0,
       owner: owner?.toEntity(),
       category:
           category?.toEntity() ??
-          const CategoryEntity(id: '', name: 'Uncategorized'),
+          const CategoryEntity(categoryId: '', category: 'Uncategorized', category_image: ''),
       isBookmarked: isBookmarked,
+      status: status ?? 'available',
+
     );
   }
 
@@ -76,6 +84,7 @@ class ItemApiModel extends Equatable {
     numReviews,
     owner,
     category,
+    status
   ];
 }
 
@@ -107,21 +116,23 @@ class OwnerApiModel extends Equatable {
 @JsonSerializable()
 class CategoryApiModel extends Equatable {
   @JsonKey(name: '_id')
-  final String id;
-  final String name;
+  final String? id;
+  final String? name;
+  @JsonKey(name: 'category_image')
+  final String? imageUrl;
 
-  const CategoryApiModel({required this.id, required this.name});
+  const CategoryApiModel({required this.id, required this.name , required this.imageUrl});
 
   factory CategoryApiModel.fromJson(Map<String, dynamic> json) =>
       _$CategoryApiModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CategoryApiModelToJson(this);
 
-  CategoryEntity toEntity() => CategoryEntity(id: id, name: name);
+  CategoryEntity toEntity() => CategoryEntity(categoryId: id ?? '', category: name?? '', category_image:imageUrl ?? '');
 
   factory CategoryApiModel.fromEntity(CategoryEntity entity) =>
-      CategoryApiModel(id: entity.id, name: entity.name);
+      CategoryApiModel(id: entity.category, name: entity.category, imageUrl: entity.category_image);
 
   @override
-  List<Object?> get props => [id, name];
+  List<Object?> get props => [id, name, imageUrl];
 }

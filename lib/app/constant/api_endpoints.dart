@@ -8,6 +8,8 @@ class ApiEndpoints {
   //connection with local host
   static const String serverAddress = "http://localhost:5050";
 
+  //static const String serverAddress = "http://10.0.2.2:5050";
+
   static const String baseUrl = "$serverAddress/api/";
   //Auth
   static const String login = "auth/login";
@@ -20,4 +22,7 @@ class ApiEndpoints {
 
   // items
   static const String getAllItems = "items";
+  static const String items = "items";
+
+  static const String getMyItems = "items/my-items";
 }

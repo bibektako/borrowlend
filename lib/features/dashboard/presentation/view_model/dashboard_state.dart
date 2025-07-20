@@ -1,4 +1,5 @@
 import 'package:borrowlend/features/items/presentation/view/bookmarked_items.dart';
+import 'package:borrowlend/features/items/presentation/view/my_items_view.dart';
 import 'package:borrowlend/features/profile/presentation/view/profile_view.dart';
 import 'package:borrowlend/features/home/presentation/view/home_page_view.dart';
 import 'package:flutter/widgets.dart';
@@ -13,7 +14,7 @@ class DashboardState {
       selectedIndex: 0,
       views: [
         HomePageView(),
-        Center(child: Text("Explore Page")),
+        MyItemsView(),
         BookmarksView(),
         ProfileView(),
       ],
