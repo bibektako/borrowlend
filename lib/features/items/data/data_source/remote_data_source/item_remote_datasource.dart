@@ -13,12 +13,10 @@ class ItemRemoteDatasource {
 
   Future<List<ItemEntity>> getAllItems() async {
     try {
-      // Assuming your ApiEndpoints file has a 'getAllItems' constant
       final response = await _apiService.dio.get(ApiEndpoints.getAllItems);
 
       if (response.statusCode == 200) {
         final getAllItemsDto = GetAllItemsDto.fromJson(response.data);
-        // Convert the list of ItemApiModels to a list of ItemEntities
         return ItemApiModel.toEntityList(getAllItemsDto.data);
       } else {
         throw Exception('Failed to get items: ${response.statusCode}');

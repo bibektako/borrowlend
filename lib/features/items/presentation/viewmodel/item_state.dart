@@ -1,33 +1,59 @@
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:equatable/equatable.dart';
 
+enum ItemStatus { initial, loading, success, failure }
+
 class ItemState extends Equatable {
-  final bool isLoading;
+  final ItemStatus status;
+
   final List<ItemEntity> items;
+  final List<ItemEntity> bookmarkedItems;
+  final Set<String> bookmarkedItemIds;
+
   final String? errorMessage;
 
   const ItemState({
-    required this.isLoading,
+    required this.status,
     required this.items,
+    required this.bookmarkedItems,
+    required this.bookmarkedItemIds,
+
     this.errorMessage,
   });
 
   factory ItemState.initial() {
-    return const ItemState(isLoading: false, items: [], errorMessage: null);
+    return const ItemState(
+      status: ItemStatus.initial,
+      items: [],
+      bookmarkedItems: [],
+      bookmarkedItemIds: {},
+
+      errorMessage: null,
+    );
   }
 
   ItemState copyWith({
-    bool? isLoading,
+    ItemStatus? status,
     List<ItemEntity>? items,
+    List<ItemEntity>? bookmarkedItems,
+    Set<String>? bookmarkedItemIds, // Add to copyWith
+
     String? errorMessage,
   }) {
     return ItemState(
-      isLoading: isLoading ?? this.isLoading,
+      status: status ?? this.status,
       items: items ?? this.items,
-      errorMessage: errorMessage ?? this.errorMessage,
+      bookmarkedItems: bookmarkedItems ?? this.bookmarkedItems,
+      bookmarkedItemIds:
+          bookmarkedItemIds ?? this.bookmarkedItemIds, 
+
+      errorMessage:
+          status == ItemStatus.failure
+              ? (errorMessage ?? this.errorMessage)
+              : null,
     );
   }
 
   @override
-  List<Object?> get props => [isLoading, items, errorMessage];
+  List<Object?> get props => [status, items, bookmarkedItems, errorMessage];
 }

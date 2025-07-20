@@ -33,8 +33,8 @@ Map<String, dynamic> _$ItemApiModelToJson(ItemApiModel instance) =>
       'borrowingPrice': instance.borrowingPrice,
       'rating': instance.rating,
       'numReviews': instance.numReviews,
-      'owner': instance.owner,
-      'category': instance.category,
+      'owner': instance.owner?.toJson(),
+      'category': instance.category?.toJson(),
     };
 
 OwnerApiModel _$OwnerApiModelFromJson(Map<String, dynamic> json) =>

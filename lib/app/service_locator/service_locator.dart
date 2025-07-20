@@ -14,9 +14,15 @@ import 'package:borrowlend/features/category/data/data_source/remote_data_source
 import 'package:borrowlend/features/category/data/repository/remote_repository/category_remote_repository.dart';
 import 'package:borrowlend/features/category/domain/use_case/get_all_category_usecase.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
+import 'package:borrowlend/features/items/data/data_source/remote_data_source/bookmark_remote_datasource.dart';
 import 'package:borrowlend/features/items/data/data_source/remote_data_source/item_remote_datasource.dart';
+import 'package:borrowlend/features/items/data/repository/remote_repository/bookmark_remote_repository.dart';
 import 'package:borrowlend/features/items/data/repository/remote_repository/item_remote_repository.dart';
+import 'package:borrowlend/features/items/domain/repository/bookmark_repository.dart';
 import 'package:borrowlend/features/items/domain/repository/item_repository.dart';
+import 'package:borrowlend/features/items/domain/use_case/bookmark/add_bookmark_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/bookmark/get_bookmark_usecase.dart';
+import 'package:borrowlend/features/items/domain/use_case/bookmark/remove_bookmark_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/create_item_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/delete_item_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/get_all_items_usecase.dart';
@@ -50,7 +56,6 @@ Future<void> initDependencies() async {
 }
 
 Future<void> _initSharedPrefs() async {
-  // Initialize Shared Preferences if needed
   final sharedPrefs = await SharedPreferences.getInstance();
   serviceLocator.registerLazySingleton(() => sharedPrefs);
   serviceLocator.registerLazySingleton(
@@ -127,7 +132,6 @@ Future<void> _initAuthModule() async {
     );
   }
 
-  // THE FIX: Ensure LoginUserUsecase gets the UserRemoteRepository
   if (!serviceLocator.isRegistered<LoginUserUsecase>()) {
     serviceLocator.registerFactory(
       () => LoginUserUsecase(
@@ -136,6 +140,11 @@ Future<void> _initAuthModule() async {
       ),
     );
   }
+  // if (!serviceLocator.isRegistered<LogoutUseCase>()) {
+  //   serviceLocator.registerFactory<LogoutUseCase>(
+  //     () => LogoutUseCase(serviceLocator<UserRemoteRepository>()),
+  //   );
+  // }
 
   // View Models
   if (!serviceLocator.isRegistered<SignupViewModel>()) {
@@ -183,51 +192,89 @@ Future<void> _initCategoryModule() async {
 
 //items
 Future<void> _initItemModule() async {
-  // 1. Register Datasource
-  serviceLocator.registerFactory<ItemRemoteDatasource>(
-    () => ItemRemoteDatasource(apiService: serviceLocator<ApiService>()),
-  );
+  // Data Sources
+  if (!serviceLocator.isRegistered<ItemRemoteDatasource>()) {
+    serviceLocator.registerFactory<ItemRemoteDatasource>(
+      () => ItemRemoteDatasource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<BookmarkRemoteDataSource>()) {
+    serviceLocator.registerFactory<BookmarkRemoteDataSource>(
+      () => BookmarkRemoteDataSource(serviceLocator<ApiService>()),
+    );
+  }
 
-  // 2. Register Repository
-  serviceLocator.registerFactory<IItemRepository>(
-    () => ItemRemoteRepository(
-      itemRemoteDatasource: serviceLocator<ItemRemoteDatasource>(),
-    ),
-  );
+  // Repositories
+  if (!serviceLocator.isRegistered<IItemRepository>()) {
+    serviceLocator.registerFactory<IItemRepository>(
+      () => ItemRemoteRepository(
+        itemRemoteDatasource: serviceLocator<ItemRemoteDatasource>(),
+      ),
+    );
+  }
+  if (!serviceLocator.isRegistered<IBookmarkRepository>()) {
+    serviceLocator.registerFactory<IBookmarkRepository>(
+      () =>
+          BookmarkRemoteRepository(serviceLocator<BookmarkRemoteDataSource>()),
+    );
+  }
 
-  // --- Domain Layer ---
+  // Use Cases
+  if (!serviceLocator.isRegistered<GetAllItemsUsecase>()) {
+    serviceLocator.registerFactory<GetAllItemsUsecase>(
+      () =>
+          GetAllItemsUsecase(itemRepository: serviceLocator<IItemRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<CreateItemUsecase>()) {
+    serviceLocator.registerFactory<CreateItemUsecase>(
+      () =>
+          CreateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<UpdateItemUsecase>()) {
+    serviceLocator.registerFactory<UpdateItemUsecase>(
+      () =>
+          UpdateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<DeleteItemUsecase>()) {
+    serviceLocator.registerFactory<DeleteItemUsecase>(
+      () => DeleteItemUsecase(
+        itemRepository: serviceLocator<IItemRepository>(),
+        tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+      ),
+    );
+  }
+  if (!serviceLocator.isRegistered<AddBookmarkUseCase>()) {
+    serviceLocator.registerFactory<AddBookmarkUseCase>(
+      () => AddBookmarkUseCase(serviceLocator<IBookmarkRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<RemoveBookmarkUseCase>()) {
+    serviceLocator.registerFactory<RemoveBookmarkUseCase>(
+      () => RemoveBookmarkUseCase(serviceLocator<IBookmarkRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<GetBookmarksUseCase>()) {
+    serviceLocator.registerFactory<GetBookmarksUseCase>(
+      () => GetBookmarksUseCase(serviceLocator<IBookmarkRepository>()),
+    );
+  }
 
-  // 3. Register Use Cases
-  serviceLocator.registerFactory<GetAllItemsUsecase>(
-    () => GetAllItemsUsecase(itemRepository: serviceLocator<IItemRepository>()),
-  );
-
-  serviceLocator.registerFactory<CreateItemUsecase>(
-    () => CreateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
-  );
-
-  serviceLocator.registerFactory<UpdateItemUsecase>(
-    () => UpdateItemUsecase(itemRepository: serviceLocator<IItemRepository>()),
-  );
-
-  serviceLocator.registerFactory<DeleteItemUsecase>(
-    () => DeleteItemUsecase(
-      itemRepository: serviceLocator<IItemRepository>(),
-      tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
-    ),
-  );
-
-  // --- Presentation Layer ---
-
-  // 4. Register ViewModel (BLoC)
-  serviceLocator.registerFactory<ItemViewModel>(
-    () => ItemViewModel(
-      getAllItemsUsecase: serviceLocator<GetAllItemsUsecase>(),
-      createItemUsecase: serviceLocator<CreateItemUsecase>(),
-      updateItemUsecase: serviceLocator<UpdateItemUsecase>(),
-      deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
-    ),
-  );
+  if (!serviceLocator.isRegistered<ItemViewModel>()) {
+    serviceLocator.registerLazySingleton<ItemViewModel>(
+      () => ItemViewModel(
+        getAllItemsUsecase: serviceLocator<GetAllItemsUsecase>(),
+        createItemUsecase: serviceLocator<CreateItemUsecase>(),
+        updateItemUsecase: serviceLocator<UpdateItemUsecase>(),
+        deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
+        addBookmarkUseCase: serviceLocator<AddBookmarkUseCase>(),
+        removeBookmarkUseCase: serviceLocator<RemoveBookmarkUseCase>(),
+        getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(),
+      ),
+    );
+  }
 }
 
 Future<void> _initProfileModule() async {

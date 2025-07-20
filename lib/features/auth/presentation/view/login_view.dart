@@ -17,9 +17,9 @@ class LoginView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. WRAP YOUR SCAFFOLD WITH A BLOCPROVIDER
+    // 1. WRAP THE SCAFFOLD WITH A BLOCPROVIDER
+    // This creates and provides the LoginViewModel for this screen.
     return BlocProvider(
-      // 2. CREATE THE VIEWMODEL INSTANCE FROM YOUR SERVICE LOCATOR
       create: (context) => serviceLocator<LoginViewModel>(),
       child: Scaffold(
         body: SafeArea(
@@ -27,7 +27,8 @@ class LoginView extends StatelessWidget {
             key: _formKey,
             child: Padding(
               padding: const EdgeInsets.all(14.0),
-              // 3. USE A BUILDER TO GET A CONTEXT THAT IS *BELOW* THE PROVIDER
+              // 2. USE A BUILDER TO GET A CONTEXT THAT IS *BELOW* THE PROVIDER
+              // This ensures that any `context.read` calls inside will find the ViewModel.
               child: Builder(
                 builder: (context) {
                   return SingleChildScrollView(
@@ -169,7 +170,7 @@ class LoginView extends StatelessWidget {
                                     fontSize: 16,
                                     fontFamily: 'Inter Bold',
                                   ),
-                                  // THIS CALL WILL NOW WORK CORRECTLY
+                                  // THIS CALL WILL NOW WORK
                                   recognizer:
                                       TapGestureRecognizer()
                                         ..onTap = () {
@@ -199,6 +200,7 @@ class LoginView extends StatelessWidget {
   }
 }
 
+// _PasswordTextField widget remains the same...
 class _PasswordTextField extends StatefulWidget {
   const _PasswordTextField({
     required this.controller,

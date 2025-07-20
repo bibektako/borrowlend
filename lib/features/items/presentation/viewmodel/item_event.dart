@@ -26,7 +26,13 @@ class CreateItemEvent extends ItemEvent {
   });
 
   @override
-  List<Object> get props => [name, description, imageUrls, borrowingPrice, category];
+  List<Object> get props => [
+    name,
+    description,
+    imageUrls,
+    borrowingPrice,
+    category,
+  ];
 }
 
 class UpdateItemEvent extends ItemEvent {
@@ -38,7 +44,6 @@ class UpdateItemEvent extends ItemEvent {
   List<Object> get props => [itemToUpdate];
 }
 
-
 class DeleteItemEvent extends ItemEvent {
   final String itemId;
 
@@ -47,3 +52,20 @@ class DeleteItemEvent extends ItemEvent {
   @override
   List<Object> get props => [itemId];
 }
+
+class ToggleBookmarkEvent extends ItemEvent {
+  final String itemId;
+  final bool isCurrentlyBookmarked;
+
+  const ToggleBookmarkEvent({
+    required this.itemId,
+    required this.isCurrentlyBookmarked,
+  });
+  @override
+  List<Object> get props => [itemId, isCurrentlyBookmarked];
+
+}
+
+class LoadBookmarkedItemsEvent extends ItemEvent {}
+
+

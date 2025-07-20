@@ -41,7 +41,6 @@ class CreateItemUsecase implements UsecaseWithParams<void, CreateItemParams> {
 
   @override
   Future<Either<Failure, void>> call(CreateItemParams params) {
-    // This now works because id, rating, and owner are nullable in ItemEntity
     final item = ItemEntity(
       name: params.name,
       description: params.description,
@@ -50,7 +49,7 @@ class CreateItemUsecase implements UsecaseWithParams<void, CreateItemParams> {
       category: CategoryEntity(
         id: params.categoryId,
         name: params.categoryName,
-      ),
+      )
     );
 
     return _itemRepository.createItem(item);

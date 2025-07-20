@@ -1,8 +1,7 @@
+import 'package:borrowlend/features/items/presentation/view/bookmarked_items.dart';
 import 'package:borrowlend/features/profile/presentation/view/profile_view.dart';
-import 'package:borrowlend/view/explore_view.dart';
 import 'package:borrowlend/features/home/presentation/view/home_page_view.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class DashboardState {
   final int selectedIndex;
@@ -15,9 +14,8 @@ class DashboardState {
       views: [
         HomePageView(),
         Center(child: Text("Explore Page")),
-        Center(child: Text("Bookmarks Page")),
+        BookmarksView(),
         ProfileView(),
-        // BlocProvider(create: (context) => ExploreViewModel(), child: ExploreView(),)
       ],
     );
   }

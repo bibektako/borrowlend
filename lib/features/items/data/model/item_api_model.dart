@@ -4,7 +4,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'item_api_model.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(explicitToJson: true)
 class ItemApiModel extends Equatable {
   @JsonKey(name: '_id')
   final String? id;
@@ -34,8 +34,7 @@ class ItemApiModel extends Equatable {
 
   Map<String, dynamic> toJson() => _$ItemApiModelToJson(this);
 
-  // Convert API Model to Entity
-  ItemEntity toEntity() {
+  ItemEntity toEntity({bool isBookmarked = false}) {
     return ItemEntity(
       id: id ?? '',
       name: name ?? 'Unnamed Item',
@@ -44,11 +43,13 @@ class ItemApiModel extends Equatable {
       borrowingPrice: borrowingPrice ?? 0.0,
       rating: rating ?? 0.0,
       owner: owner?.toEntity(),
-      category: category?.toEntity() ?? const CategoryEntity(id: '', name: 'Uncategorized'),
+      category:
+          category?.toEntity() ??
+          const CategoryEntity(id: '', name: 'Uncategorized'),
+      isBookmarked: isBookmarked,
     );
   }
 
-  // Convert Entity to API Model
   factory ItemApiModel.fromEntity(ItemEntity entity) {
     return ItemApiModel(
       id: entity.id,
@@ -56,28 +57,26 @@ class ItemApiModel extends Equatable {
       description: entity.description,
       imageUrls: entity.imageUrls,
       borrowingPrice: entity.borrowingPrice,
-      // 'rating' and 'owner' are not sent when creating/updating
       category: CategoryApiModel.fromEntity(entity.category),
     );
   }
 
-  // Convert a list of API Models to a list of Entities
   static List<ItemEntity> toEntityList(List<ItemApiModel> models) {
-    return models.map((model) => model.toEntity()).toList();
+    return models.map((model) => model.toEntity(isBookmarked: false)).toList();
   }
 
   @override
   List<Object?> get props => [
-        id,
-        name,
-        description,
-        imageUrls,
-        borrowingPrice,
-        rating,
-        numReviews,
-        owner,
-        category,
-      ];
+    id,
+    name,
+    description,
+    imageUrls,
+    borrowingPrice,
+    rating,
+    numReviews,
+    owner,
+    category,
+  ];
 }
 
 @JsonSerializable()
@@ -87,7 +86,11 @@ class OwnerApiModel extends Equatable {
   final String username;
   final String? location;
 
-  const OwnerApiModel({required this.id, required this.username, this.location});
+  const OwnerApiModel({
+    required this.id,
+    required this.username,
+    this.location,
+  });
 
   factory OwnerApiModel.fromJson(Map<String, dynamic> json) =>
       _$OwnerApiModelFromJson(json);

@@ -1,3 +1,4 @@
+import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_event.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_state.dart';
@@ -10,9 +11,6 @@ class CategoryExplorer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Provide the BLoC to the widget tree.
-    // BlocProvider uses the `create` callback to get an instance of the BLoC.
-    // This is where we use our service locator `sl`.
     return BlocProvider(
       create:
           (context) => serviceLocator<CategoryBloc>()..add(FetchCategories()),
@@ -57,9 +55,15 @@ class CategoryExplorer extends StatelessWidget {
                         (context, index) => const SizedBox(width: 12),
                     itemBuilder: (context, index) {
                       final category = state.categories[index];
+                      String imagePath = category.category_image;
+                      if (imagePath.startsWith('/')) {
+                        imagePath = imagePath.substring(1);
+                      }
+                      final fullImageUrl =
+                          '${ApiEndpoints.serverAddress}/$imagePath';
                       return CategoryCard(
                         title: category.category.replaceAll(' ', '\n'),
-                        imageUrl: category.category_image,
+                        imageUrl: fullImageUrl,
                       );
                     },
                   ),
@@ -119,7 +123,7 @@ class CategoryCard extends StatelessWidget {
               fontSize: 13,
               fontFamily: 'Inter Regular',
               color: Colors.black,
-              height: 1.2, 
+              height: 1.2,
             ),
           ),
         ],

@@ -5,7 +5,6 @@ import 'package:borrowlend/features/category/presentation/view/category_explorer
 import 'package:borrowlend/features/home/presentation/view_model/home_event.dart';
 import 'package:borrowlend/features/home/presentation/view_model/home_view_model.dart';
 import 'package:borrowlend/features/items/presentation/view/item_card.dart';
-
 import 'package:borrowlend/features/items/presentation/view/item_detail_view.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_state.dart';
@@ -22,10 +21,10 @@ class HomePageView extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => HomeViewModel()),
-        BlocProvider(
-          create:
-              (context) =>
-                  serviceLocator<ItemViewModel>()..add(LoadAllItemsEvent()),
+
+        
+        BlocProvider.value(
+          value: serviceLocator<ItemViewModel>()..add(LoadAllItemsEvent()),
         ),
       ],
       child: Scaffold(appBar: AppBar(), body: const _HomePageContent()),
@@ -49,10 +48,7 @@ class _HomePageContent extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 context.read<HomeViewModel>().add(
-                  NavigateToPage(
-                    context: context,
-                    destination: SearchView(), // The UI creates the widget
-                  ),
+                  NavigateToPage(context: context, destination: SearchView()),
                 );
               },
               child: Container(
@@ -84,7 +80,8 @@ class _HomePageContent extends StatelessWidget {
                 const SizedBox(height: 18),
                 BlocBuilder<ItemViewModel, ItemState>(
                   builder: (context, state) {
-                    if (state.isLoading && state.items.isEmpty) {
+                    if (state.status == ItemStatus.loading &&
+                        state.items.isEmpty) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (state.items.isEmpty) {
@@ -105,13 +102,13 @@ class _HomePageContent extends StatelessWidget {
                         final item = state.items[index];
                         return GestureDetector(
                           onTap: () {
-                            // Dispatch the event, providing the specific ItemDetailView instance.
-                            context.read<HomeViewModel>().add(
-                              NavigateToPage(
-                                context: context,
-                                destination: ItemDetailView(
-                                  item: item,
-                                ), // UI creates the widget
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => BlocProvider.value(
+                                      value: context.read<ItemViewModel>(),
+                                      child: ItemDetailView(item: item),
+                                    ),
                               ),
                             );
                           },
