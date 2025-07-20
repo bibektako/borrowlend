@@ -6,9 +6,12 @@ sealed class SearchEvent extends Equatable {
   List<Object?> get props => [];
 }
 
+class FetchAllItemsForSearch extends SearchEvent {}
+
 class SearchTermChanged extends SearchEvent {
   final String term;
   const SearchTermChanged(this.term);
 }
+
 
 class ClearSearch extends SearchEvent {}

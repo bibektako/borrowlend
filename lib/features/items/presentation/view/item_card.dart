@@ -7,8 +7,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ItemCard extends StatelessWidget {
   final ItemEntity item;
+    final VoidCallback? onTap;
 
-  const ItemCard({Key? key, required this.item}) : super(key: key);
+
+  const ItemCard({Key? key, required this.item, this.onTap}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,28 +23,33 @@ class ItemCard extends StatelessWidget {
       imageUrl = '${ApiEndpoints.serverAddress}/$imagePath';
     }
 
-    return Card(
-      elevation: 2.0,
-      shadowColor: Colors.grey.shade100,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.grey.shade100, // A subtle background for the image
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  _buildItemImage(imageUrl),
-                  _buildBookmarkButton(context),
-                ],
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12.0),
+
+      child: Card(
+        elevation: 2.0,
+        shadowColor: Colors.grey.shade100,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Container(
+                color: Colors.grey.shade100, // A subtle background for the image
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _buildItemImage(imageUrl),
+                    _buildBookmarkButton(context),
+                  ],
+                ),
               ),
             ),
-          ),
-          _buildTextDetails(context),
-        ],
+            _buildTextDetails(context),
+          ],
+        ),
       ),
     );
   }

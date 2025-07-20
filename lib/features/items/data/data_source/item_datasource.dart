@@ -4,7 +4,7 @@ import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:dio/dio.dart'; 
 
 abstract interface class IItemDataSource {
-  Future<List<ItemApiModel>> getAllItems();
+  Future<List<ItemApiModel>> getAllItems({Map<String, dynamic>? params});
   
   Future< List<ItemApiModel>>getMyItems();
 

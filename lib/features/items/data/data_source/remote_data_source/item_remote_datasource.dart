@@ -3,7 +3,7 @@ import 'package:borrowlend/core/network/api_service.dart';
 import 'package:borrowlend/features/items/data/data_source/item_datasource.dart';
 import 'package:borrowlend/features/items/data/dto/get_all_items_dto.dart';
 import 'package:borrowlend/features/items/data/model/item_api_model.dart';
-import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 class ItemRemoteDataSource implements IItemDataSource {
@@ -13,9 +13,12 @@ class ItemRemoteDataSource implements IItemDataSource {
     : _apiService = apiService;
 
   @override
-  Future<List<ItemApiModel>> getAllItems() async {
+  Future<List<ItemApiModel>> getAllItems({Map<String, dynamic>? params}) async {
     try {
-      final response = await _apiService.dio.get(ApiEndpoints.items);
+
+      debugPrint("--- Sending request to /items with query params: $params ---");
+
+      final response = await _apiService.dio.get(ApiEndpoints.items,queryParameters: params);
 
       if (response.statusCode == 200) {
         final getAllItemsDto = GetAllItemsDto.fromJson(response.data);
@@ -35,7 +38,7 @@ class ItemRemoteDataSource implements IItemDataSource {
   Future<void> createItem(FormData formData) async {
     try {
       await _apiService.dio.post(
-        ApiEndpoints.items, // Your backend route is POST /api/items
+        ApiEndpoints.items, 
         data: formData,
       );
     } on DioException catch (e) {

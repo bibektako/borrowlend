@@ -14,9 +14,9 @@ class ItemRemoteRepository implements IItemRepository {
       : _itemRemoteDatasource = itemRemoteDatasource;
 
   @override
-  Future<Either<Failure, List<ItemEntity>>> getAllItems() async {
+  Future<Either<Failure, List<ItemEntity>>> getAllItems({Map<String, dynamic>? params}) async {
     try {
-      final itemModels = await _itemRemoteDatasource.getAllItems();
+      final itemModels = await _itemRemoteDatasource.getAllItems(params: params);
       final itemEntities = itemModels.map((model) => model.toEntity()).toList();
       return Right(itemEntities);
     } catch (e) {

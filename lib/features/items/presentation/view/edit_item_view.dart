@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_state.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
@@ -120,20 +121,29 @@ class EditItemView extends StatelessWidget {
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(12),
                       ),
+                      // child:
+                      //     state.imagePaths.isNotEmpty
+                      //         ? ClipRRect(
+                      //           borderRadius: BorderRadius.circular(12),
+                      //           child:
+                      //               state.imagePaths.first.startsWith('http')
+                      //                   ? Image.network(
+                      //                     state.imagePaths.first,
+                      //                     fit: BoxFit.cover,
+                      //                   )
+                      //                   : Image.file(
+                      //                     File(state.imagePaths.first),
+                      //                     fit: BoxFit.cover,
+                      //                   ),
+                      //         )
+                      //         : const Center(
+                      //           child: Text('Tap to change image'),
+                      //         ),
                       child:
                           state.imagePaths.isNotEmpty
                               ? ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
-                                child:
-                                    state.imagePaths.first.startsWith('http')
-                                        ? Image.network(
-                                          state.imagePaths.first,
-                                          fit: BoxFit.cover,
-                                        )
-                                        : Image.file(
-                                          File(state.imagePaths.first),
-                                          fit: BoxFit.cover,
-                                        ),
+                                child: buildImageWidget(state.imagePaths.first),
                               )
                               : const Center(
                                 child: Text('Tap to change image'),
@@ -251,5 +261,17 @@ class EditItemView extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+Widget buildImageWidget(String path) {
+  if (path.startsWith('http')) {
+    return Image.network(path, fit: BoxFit.cover);
+  }
+  if (path.startsWith('/')) {
+    return Image.file(File(path), fit: BoxFit.cover);
+  } else {
+    final fullUrl = '${ApiEndpoints.serverAddress}/$path';
+    return Image.network(fullUrl, fit: BoxFit.cover);
   }
 }

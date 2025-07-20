@@ -1,4 +1,5 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
+import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/presentation/view/item_card.dart';
 import 'package:borrowlend/features/items/presentation/view/item_detail_view.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
@@ -16,11 +17,12 @@ class SearchView extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => serviceLocator<SearchViewModel>(),
+          create:
+              (context) =>
+                  serviceLocator<SearchViewModel>()
+                    ..add(FetchAllItemsForSearch()),
         ),
-        BlocProvider.value(
-          value: serviceLocator<ItemViewModel>(),
-        ),
+        BlocProvider.value(value: serviceLocator<ItemViewModel>()),
       ],
       child: Scaffold(
         appBar: AppBar(title: const Text('Search & Discover')),
@@ -37,36 +39,54 @@ class SearchView extends StatelessWidget {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (state.status == SearchStatus.failure) {
-                      return Center(child: Text(state.errorMessage ?? 'An error occurred.'));
+                      return Center(
+                        child: Text(state.errorMessage ?? 'An error occurred.'),
+                      );
                     }
-                    if (state.searchResults.isEmpty) {
-                      if (state.searchTerm.isNotEmpty) {
-                        return Center(child: Text('No results found for "${state.searchTerm}"'));
+
+                    final bool isSearching = state.searchTerm.isNotEmpty;
+
+                    final List<ItemEntity> itemsToDisplay =
+                        isSearching ? state.searchResults : state.allItems;
+
+                    if (itemsToDisplay.isEmpty) {
+                      if (isSearching) {
+                        return Center(
+                          child: Text(
+                            'No results found for "${state.searchTerm}"',
+                          ),
+                        );
                       }
-                      return const Center(child: Text('Start typing to search for items.'));
+                      return const Center(
+                        child: Text('No items available to display.'),
+                      );
                     }
+
                     return GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 14,
-                        childAspectRatio: 0.80,
-                      ),
-                      itemCount: state.searchResults.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            crossAxisSpacing: 12,
+                            mainAxisSpacing: 14,
+                            childAspectRatio: 0.80,
+                          ),
+                      itemCount: itemsToDisplay.length,
                       itemBuilder: (context, index) {
-                        final item = state.searchResults[index];
+                        final item = itemsToDisplay[index];
                         return ItemCard(
                           item: item,
                           onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                              builder: (_) => BlocProvider.value(
-                                value: context.read<ItemViewModel>(),
-                                child: ItemDetailView(item: item),
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => BlocProvider.value(
+                                      value: context.read<ItemViewModel>(),
+                                      child: ItemDetailView(item: item),
+                                    ),
                               ),
-                            ));
+                            );
                           },
                         );
-                        // -----------------------
                       },
                     );
                   },
@@ -80,7 +100,6 @@ class SearchView extends StatelessWidget {
   }
 }
 
-// _SearchBar remains the same
 class _SearchBar extends StatefulWidget {
   @override
   State<_SearchBar> createState() => _SearchBarState();
@@ -99,7 +118,6 @@ class _SearchBarState extends State<_SearchBar> {
   Widget build(BuildContext context) {
     return TextField(
       controller: _controller,
-      autofocus: true,
       decoration: InputDecoration(
         hintText: 'Search for items by name...',
         prefixIcon: const Icon(Icons.search),

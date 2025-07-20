@@ -1,3 +1,4 @@
+import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
@@ -27,7 +28,7 @@ class MyItemsView extends StatelessWidget {
                 builder: (_) => MultiBlocProvider(
                   providers: [
                     BlocProvider.value(
-                      value: context.read<ItemViewModel>(), // Pass existing ItemViewModel
+                      value: context.read<ItemViewModel>(), 
                     ),
                     BlocProvider.value(
                       value: context.read<CategoryBloc>(), // Pass existing CategoryBloc
@@ -94,12 +95,31 @@ class _MyItemTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String? imageUrl;
+    if (item.imageUrls.isNotEmpty) {
+      String imagePath = item.imageUrls.first;
+      if (imagePath.startsWith('/')) {
+        imagePath = imagePath.substring(1);
+      }
+      imageUrl = '${ApiEndpoints.serverAddress}/$imagePath';
+    }
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
         child: Row(
           children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 70,
+                height: 70,
+                child: imageUrl != null
+                    ? Image.network(imageUrl, fit: BoxFit.cover)
+                    : Container(color: Colors.grey.shade200, child: const Icon(Icons.image_not_supported_outlined, color: Colors.grey)),
+              ),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,7 +134,6 @@ class _MyItemTile extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            // --- EDIT BUTTON ---
             IconButton(
               icon: const Icon(Icons.edit_outlined, color: Colors.blueAccent),
               tooltip: 'Edit Item',

@@ -34,6 +34,7 @@ import 'package:borrowlend/features/profile/data/repository/profile_repository.d
 import 'package:borrowlend/features/profile/domain/repository/profile_repository.dart';
 import 'package:borrowlend/features/profile/domain/use_case/get_profile_usecase.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:borrowlend/features/search/presentation/view_model/search_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
@@ -262,7 +263,19 @@ Future<void> _initItemModule() async {
       () => GetBookmarksUseCase(serviceLocator<IBookmarkRepository>()),
     );
   }
+
   serviceLocator.registerFactory(() => GetMyItemsUseCase(serviceLocator()));
+
+  if (!serviceLocator.isRegistered<SearchViewModel>()) {
+    // FIX #2: Correctly use named parameters for the constructor
+    serviceLocator.registerFactory<SearchViewModel>(
+      () => SearchViewModel(
+        getAllItemsUsecase: serviceLocator<GetAllItemsUsecase>(),
+        itemViewModel: serviceLocator<ItemViewModel>(),
+      ),
+    );
+  }
+
 
   if (!serviceLocator.isRegistered<ItemViewModel>()) {
     serviceLocator.registerLazySingleton<ItemViewModel>(
@@ -273,7 +286,7 @@ Future<void> _initItemModule() async {
         deleteItemUsecase: serviceLocator<DeleteItemUsecase>(),
         addBookmarkUseCase: serviceLocator<AddBookmarkUseCase>(),
         removeBookmarkUseCase: serviceLocator<RemoveBookmarkUseCase>(),
-        getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(), 
+        getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(),
         getMyItemsUsecase: serviceLocator<GetMyItemsUseCase>(),
       ),
     );

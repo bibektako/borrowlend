@@ -3,7 +3,7 @@ import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:dartz/dartz.dart';
 
 abstract interface class IItemRepository {
-  Future<Either<Failure, List<ItemEntity>>> getAllItems();
+  Future<Either<Failure, List<ItemEntity>>> getAllItems({Map<String, dynamic>? params});
 
   Future<Either<Failure, List<ItemEntity>>> getMyItems();
 

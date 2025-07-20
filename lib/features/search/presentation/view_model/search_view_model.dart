@@ -15,11 +15,31 @@ class SearchViewModel extends Bloc<SearchEvent, SearchState> {
   })  : _getAllItemsUsecase = getAllItemsUsecase,
         _itemViewModel = itemViewModel,
         super(const SearchState()) {
+              on<FetchAllItemsForSearch>(_onFetchAllItems);
+
     on<SearchTermChanged>(
       _onSearchTermChanged,
       transformer: (events, mapper) => events.debounceTime(const Duration(milliseconds: 500)).switchMap(mapper),
     );
     on<ClearSearch>(_onClearSearch);
+  }
+
+  Future<void> _onFetchAllItems(FetchAllItemsForSearch event, Emitter<SearchState> emit) async {
+    emit(state.copyWith(status: SearchStatus.loading));
+    
+    final result = await _getAllItemsUsecase(null);
+    
+    result.fold(
+      (failure) => emit(state.copyWith(status: SearchStatus.failure, errorMessage: failure.message)),
+      (items) {
+        final bookmarkedIds = _itemViewModel.state.bookmarkedItemIds;
+        final mergedItems = items.map((item) {
+          return item.copyWith(isBookmarked: bookmarkedIds.contains(item.id));
+        }).toList();
+        
+        emit(state.copyWith(status: SearchStatus.success, allItems: mergedItems));
+      },
+    );
   }
 
   Future<void> _onSearchTermChanged(SearchTermChanged event, Emitter<SearchState> emit) async {

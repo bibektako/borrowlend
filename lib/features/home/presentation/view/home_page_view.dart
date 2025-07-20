@@ -9,7 +9,7 @@ import 'package:borrowlend/features/items/presentation/view/item_detail_view.dar
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_state.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
-import 'package:borrowlend/view/search_view.dart';
+import 'package:borrowlend/features/search/presentation/view/search_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,7 +22,6 @@ class HomePageView extends StatelessWidget {
       providers: [
         BlocProvider(create: (context) => HomeViewModel()),
 
-        
         BlocProvider.value(
           value: serviceLocator<ItemViewModel>()..add(LoadAllItemsEvent()),
         ),
@@ -100,7 +99,8 @@ class _HomePageContent extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemBuilder: (context, index) {
                         final item = state.items[index];
-                        return GestureDetector(
+                        return ItemCard(
+                          item: item,
                           onTap: () {
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -112,7 +112,6 @@ class _HomePageContent extends StatelessWidget {
                               ),
                             );
                           },
-                          child: ItemCard(item: item),
                         );
                       },
                     );

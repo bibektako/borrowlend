@@ -57,7 +57,7 @@ class ItemViewModel extends Bloc<ItemEvent, ItemState> {
     on<FormFieldChanged>(_onFormFieldChanged);
     on<CreateItemEvent>(
       _onCreateItem,
-    ); // Using CreateItemEvent for form submission
+    ); 
     on<UpdateItemEvent>(_onUpdateItem);
     on<SubmitAddItemForm>(_onSubmitAddItemForm);
     on<SubmitEditItemForm>(_onSubmitEditItemForm);
@@ -71,7 +71,7 @@ class ItemViewModel extends Bloc<ItemEvent, ItemState> {
     emit(state.copyWith(status: ItemStatus.loading));
 
     final results = await Future.wait([
-      _getAllItemsUsecase(),
+      _getAllItemsUsecase(null),
       _getBookmarksUseCase(),
     ]);
 
@@ -152,7 +152,7 @@ class ItemViewModel extends Bloc<ItemEvent, ItemState> {
       ),
       (_) {
         emit(state.copyWith(formStatus: FormStatus.success));
-           emit(state.copyWith(formStatus: FormStatus.initial));
+                emit(state.copyWith(formStatus: FormStatus.initial));
 
         add(LoadAllItemsEvent());
         add(LoadMyItemsEvent());

@@ -4,14 +4,14 @@ import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/domain/repository/item_repository.dart';
 import 'package:dartz/dartz.dart';
 
-class GetAllItemsUsecase implements UsecaseWithoutParams<List<ItemEntity>> {
+class GetAllItemsUsecase implements UsecaseWithParams<List<ItemEntity>,Map<String, dynamic>? > {
   final IItemRepository _itemRepository;
 
   GetAllItemsUsecase({required IItemRepository itemRepository})
       : _itemRepository = itemRepository;
 
   @override
-  Future<Either<Failure, List<ItemEntity>>> call() {
-    return _itemRepository.getAllItems();
+  Future<Either<Failure, List<ItemEntity>>> call(Map<String, dynamic>? params) {
+    return _itemRepository.getAllItems(params: params);
   }
 }
