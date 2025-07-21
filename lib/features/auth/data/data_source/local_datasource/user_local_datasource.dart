@@ -7,8 +7,6 @@ import 'package:borrowlend/features/auth/domain/entity/user_entity.dart';
 class UserLocalDatasource implements IUserDataSource{
   final HiveService _hiveService;
 
-  //Dependency injection
-  //constructor
 
   UserLocalDatasource({ required HiveService hiveService})
   : _hiveService = hiveService;
@@ -40,15 +38,8 @@ class UserLocalDatasource implements IUserDataSource{
   }
   
   @override
-  Future<String> loginUser(String email, String password) async{
-    try {
-      final user = await _hiveService.loginUser(email, password);
-      if(user == null){
-        throw Exception('Invalid username or password');
-      }
-      return user.userId ?? '';
-    } catch (e) {
-      throw Exception('Login failed: $e');
-    }
+  Future<(UserEntity, String)> loginUser(String email, String password) {
+    throw UnimplementedError(
+        'Login is a remote operation and not supported by the local data source.');
   }
 }

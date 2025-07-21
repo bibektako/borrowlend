@@ -1,8 +1,11 @@
 import 'package:borrowlend/app/constant/api_endpoints.dart';
+import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_state.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
+import 'package:borrowlend/features/review/presentation/view/review_section.dart';
+import 'package:borrowlend/features/review/presentation/view_model/review_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -40,70 +43,78 @@ class _ItemDetailViewState extends State<ItemDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ItemViewModel, ItemState>(
-      builder: (context, state) {
-        final currentItem = state.items.firstWhere(
-          (i) => i.id == widget.item.id,
-          orElse:
-              () => widget.item, // Fallback to the initial item if not found
-        );
+    return BlocProvider<ReviewViewModel>(
+      create: (context) => serviceLocator<ReviewViewModel>(),
+      child: BlocBuilder<ItemViewModel, ItemState>(
+        builder: (context, state) {
+          final currentItem = state.items.firstWhere(
+            (i) => i.id == widget.item.id,
+            orElse:
+                () => widget.item, // Fallback to the initial item if not found
+          );
 
-        return Scaffold(
-          backgroundColor: Colors.white,
-          body: SafeArea(
-            child: CustomScrollView(
-              slivers: [
-                _buildSliverAppBar(context, currentItem),
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      const SizedBox(height: 16),
-                      _buildImageCarousel(),
-                      const SizedBox(height: 8),
-                      if (widget.item.imageUrls.length > 1) ...[
-                        _buildImageIndicator(),
-                        const SizedBox(height: 24),
-                      ] else ...[
+          return Scaffold(
+            backgroundColor: Colors.white,
+            body: SafeArea(
+              child: CustomScrollView(
+                slivers: [
+                  _buildSliverAppBar(context, currentItem),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
                         const SizedBox(height: 16),
-                      ],
-                      _buildTitleAndPrice(),
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Description",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Color(0xFF333333),
+                        _buildImageCarousel(),
+                        const SizedBox(height: 8),
+                        if (widget.item.imageUrls.length > 1) ...[
+                          _buildImageIndicator(),
+                          const SizedBox(height: 24),
+                        ] else ...[
+                          const SizedBox(height: 16),
+                        ],
+                        _buildTitleAndPrice(),
+                        const SizedBox(height: 24),
+                        const Text(
+                          "Description",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Color(0xFF333333),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        widget.item.description,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey[700],
-                          height: 1.5,
+                        const SizedBox(height: 8),
+                        Text(
+                          widget.item.description,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[700],
+                            height: 1.5,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 24),
-                      _buildOwnerInfo(),
-                      const SizedBox(height: 24),
-                      _buildReviewSection(),
-                      const SizedBox(height: 40),
-                      _buildBorrowButton(),
-                      const SizedBox(height: 20),
-                    ]),
+                        const SizedBox(height: 24),
+                        _buildOwnerInfo(),
+                        const SizedBox(height: 24),
+                        // 4. FIX the ReviewSection call to pass the correct parameters
+                        ReviewSection(
+                          itemId: widget.item.id!,
+                          averageRating: widget.item.rating ?? 0.0,
+                        ),
+                        const SizedBox(height: 40),
+                        _buildBorrowButton(),
+                        const SizedBox(height: 20),
+                      ]),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
+  // ... (The rest of your code (_buildSliverAppBar, etc.) remains unchanged)
   SliverAppBar _buildSliverAppBar(
     BuildContext context,
     ItemEntity currentItem,
@@ -138,11 +149,11 @@ class _ItemDetailViewState extends State<ItemDetailView> {
             onPressed: () {
               // 6. DISPATCH THE EVENT to the ItemViewModel.
               context.read<ItemViewModel>().add(
-                ToggleBookmarkEvent(
-                  itemId: currentItem.id!,
-                  isCurrentlyBookmarked: currentItem.isBookmarked,
-                ),
-              );
+                    ToggleBookmarkEvent(
+                      itemId: currentItem.id!,
+                      isCurrentlyBookmarked: currentItem.isBookmarked,
+                    ),
+                  );
             },
           ),
         ),
@@ -180,7 +191,6 @@ class _ItemDetailViewState extends State<ItemDetailView> {
             }
             final imageUrl = '${ApiEndpoints.serverAddress}/$imagePath';
             
-
             return Image.network(
               imageUrl,
               fit: BoxFit.cover,
@@ -306,53 +316,6 @@ class _ItemDetailViewState extends State<ItemDetailView> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildReviewSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text(
-              "Reviews",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            TextButton(onPressed: () {}, child: const Text("See All")),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey[200]!),
-          ),
-          child: Row(
-            children: [
-              Text(
-                (widget.item.rating ?? 0.0).toStringAsFixed(1),
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(width: 12),
-              const Icon(Icons.star, color: Colors.amber, size: 32),
-              const SizedBox(width: 16),
-              const Expanded(
-                child: Text(
-                  "Based on user reviews. More reviews coming soon!",
-                  style: TextStyle(fontSize: 14, color: Colors.grey),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

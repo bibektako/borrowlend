@@ -25,15 +25,14 @@ class UserApiModel extends Equatable {
     this.location,
   });
 
-  // Correctly named factory constructor
   factory UserApiModel.fromJson(Map<String, dynamic> json) =>
       _$UserApiModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserApiModelToJson(this);
 
-  // Convert this API Model to a Domain Entity
   UserEntity toEntity() {
     return UserEntity(
+      userId: userId,
       username: username ?? '',
       email: email ?? '',
       phone: phone ?? '',
@@ -44,6 +43,7 @@ class UserApiModel extends Equatable {
   // Create an API Model from a Domain Entity
   factory UserApiModel.fromEntity(UserEntity entity) {
     return UserApiModel(
+      userId: entity.userId,
       username: entity.username,
       phone: entity.phone,
       email: entity.email,

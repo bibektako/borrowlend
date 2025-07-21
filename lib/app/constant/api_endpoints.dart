@@ -28,10 +28,10 @@ class ApiEndpoints {
 
   //reviews
   static const String createReview = "reviews/create";
-  static const String getReviews = "reviews"; // Used for GET / with query params
-  static const String updateReview = "reviews/"; // Append {id} for PUT
-  static const String deleteReview = "reviews/"; // Append {id} for DELETE
-  static const String getReviewById = "reviews/";
+  static const String reviews = "reviews"; 
+  static String updateReview(String reviewId) => "reviews/$reviewId";
+  static String deleteReview(String reviewId) => "reviews/$reviewId";
 
+  static String getReviewById(String reviewId) => "reviews/$reviewId";
 
 }

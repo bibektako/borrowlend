@@ -17,24 +17,24 @@ class ReviewUserApiModel {
   Map<String, dynamic> toJson() => _$ReviewUserApiModelToJson(this);
 }
 
-String _itemFromJson(dynamic json) => json is String ? json : json['_id'];
-
 String _userToJson(ReviewUserApiModel user) => user.id;
 
-@JsonSerializable()
+@JsonSerializable(
+  includeIfNull: false,
+)
 class ReviewApiModel {
   @JsonKey(name: '_id')
   final String? id;
   final double rating;
   final String comment;
-  
-  @JsonKey(name: 'item_id', fromJson: _itemFromJson)
-  final String itemId;
 
+  @JsonKey(name: 'item_id')
+  final String itemId;
   @JsonKey(name: 'user_id', toJson: _userToJson)
   final ReviewUserApiModel user;
-
+  
   final DateTime? createdAt;
+
 
   const ReviewApiModel({
     this.id,
@@ -63,12 +63,15 @@ class ReviewApiModel {
 
   factory ReviewApiModel.fromEntity(ReviewEntity entity) {
     return ReviewApiModel(
-      id: entity.id,
+      id: entity.id, // This will be null for a new review.
       rating: entity.rating,
       comment: entity.comment,
       itemId: entity.itemId,
-      user: ReviewUserApiModel(id: entity.user.id, username: entity.user.username),
-      createdAt: entity.createdAt,
+      user: ReviewUserApiModel(
+        id: entity.user.id,
+        username: entity.user.username,
+      ),
+      createdAt: entity.createdAt, // This will be null for a new review.
     );
   }
 }

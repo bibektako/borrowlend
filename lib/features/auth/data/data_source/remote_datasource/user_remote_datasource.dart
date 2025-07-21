@@ -32,7 +32,7 @@ class UserRemoteDatasource implements IUserDataSource {
   }
 
   @override
-  Future<String> loginUser(String email, String password) async {
+  Future<(UserEntity,String)> loginUser(String email, String password) async {
     try {
       debugPrint("Attempting to log in user: $email");
       final response = await _apiService.dio.post(
@@ -57,10 +57,14 @@ class UserRemoteDatasource implements IUserDataSource {
         if (responseData.containsKey('token') &&
             responseData['token'] is String) {
           final String token = responseData['token'];
+          final UserApiModel userApiModel = UserApiModel.fromJson(responseData['data']);
+          
+          final UserEntity userEntity = userApiModel.toEntity();
+
           // --- ADDED FOR DEBUGGING ---
           debugPrint("Successfully extracted token: $token");
           // -------------------------
-          return token;
+          return (userEntity, token);
         } else {
           throw Exception(
             'Login successful, but the "token" is missing or not a String.',

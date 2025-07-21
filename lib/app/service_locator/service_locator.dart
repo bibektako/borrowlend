@@ -34,6 +34,15 @@ import 'package:borrowlend/features/profile/data/repository/profile_repository.d
 import 'package:borrowlend/features/profile/domain/repository/profile_repository.dart';
 import 'package:borrowlend/features/profile/domain/use_case/get_profile_usecase.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_view_model.dart';
+import 'package:borrowlend/features/review/data/datasource/remote_datasource/review_remote_datasource.dart';
+import 'package:borrowlend/features/review/data/datasource/review_datasource.dart';
+import 'package:borrowlend/features/review/data/repository/remote_repository/remote_review_repository.dart';
+import 'package:borrowlend/features/review/domain/repository/review_repository.dart';
+import 'package:borrowlend/features/review/domain/usecase/create_review_usecase.dart';
+import 'package:borrowlend/features/review/domain/usecase/delete_review_usecae.dart';
+import 'package:borrowlend/features/review/domain/usecase/get_review_usecase.dart';
+import 'package:borrowlend/features/review/domain/usecase/update_review_usecase.dart';
+import 'package:borrowlend/features/review/presentation/view_model/review_view_model.dart';
 import 'package:borrowlend/features/search/presentation/view_model/search_view_model.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
 import 'package:dio/dio.dart';
@@ -54,6 +63,7 @@ Future<void> initDependencies() async {
     await _initCategoryModule();
     await _initItemModule();
     await _initProfileModule();
+    await _initReviewModule();
   }
 }
 
@@ -157,7 +167,7 @@ Future<void> _initAuthModule() async {
     );
   }
   if (!serviceLocator.isRegistered<LoginViewModel>()) {
-    serviceLocator.registerFactory<LoginViewModel>(
+    serviceLocator.registerLazySingleton<LoginViewModel>(
       () => LoginViewModel(serviceLocator<LoginUserUsecase>()),
     );
   }
@@ -288,6 +298,57 @@ Future<void> _initItemModule() async {
         removeBookmarkUseCase: serviceLocator<RemoveBookmarkUseCase>(),
         getBookmarksUseCase: serviceLocator<GetBookmarksUseCase>(),
         getMyItemsUsecase: serviceLocator<GetMyItemsUseCase>(),
+      ),
+    );
+  }
+}
+Future<void> _initReviewModule() async {
+  // Data Layer
+  // Register ReviewRemoteDataSource as the implementation for IReviewDataSource
+  if (!serviceLocator.isRegistered<IReviewDataSource>()) {
+    serviceLocator.registerFactory<IReviewDataSource>(
+      () => ReviewRemoteDataSource(apiService: serviceLocator<ApiService>()),
+    );
+  }
+
+  // Register RemoteReviewRepository as the implementation for IReviewRepository
+  if (!serviceLocator.isRegistered<IReviewRepository>()) {
+    serviceLocator.registerFactory<IReviewRepository>(
+      () => RemoteReviewRepository(dataSource: serviceLocator<IReviewDataSource>()),
+    );
+  }
+
+  // Domain Layer (Use Cases)
+  if (!serviceLocator.isRegistered<GetReviewsUsecase>()) {
+    serviceLocator.registerFactory<GetReviewsUsecase>(
+      () => GetReviewsUsecase(repository: serviceLocator<IReviewRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<CreateReviewUsecase>()) {
+    serviceLocator.registerFactory<CreateReviewUsecase>(
+      () => CreateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<UpdateReviewUsecase>()) {
+    serviceLocator.registerFactory<UpdateReviewUsecase>(
+      () => UpdateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<DeleteReviewUsecase>()) {
+    serviceLocator.registerFactory<DeleteReviewUsecase>(
+      () => DeleteReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+    );
+  }
+
+  if (!serviceLocator.isRegistered<ReviewViewModel>()) {
+    serviceLocator.registerFactory<ReviewViewModel>(
+      () => ReviewViewModel(
+        getReviewsUsecase: serviceLocator<GetReviewsUsecase>(),
+        createReviewUsecase: serviceLocator<CreateReviewUsecase>(),
+        updateReviewUsecase: serviceLocator<UpdateReviewUsecase>(),
+        deleteReviewUsecase: serviceLocator<DeleteReviewUsecase>(),
+        loginViewModel: serviceLocator<LoginViewModel>(),
+
       ),
     );
   }

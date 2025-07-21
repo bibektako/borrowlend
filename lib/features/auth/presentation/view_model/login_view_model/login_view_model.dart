@@ -13,6 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final LoginUserUsecase _loginUsecase;
   LoginViewModel(this._loginUsecase) : super(LoginState.initial()) {
+    print("✅✅✅ LoginViewModel CREATED! HashCode: $hashCode ✅✅✅");
+
     on<NavigateToSignupView>(_onNavigateToSignupView);
     // on<NavigateToForgotPasswordView>(_onNavigateToForgotPasswordView);
     on<NavigateToHomeView>(_onNavigateToHomeView);
@@ -80,8 +82,8 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
           color: Colors.red,
         );
       },
-      (token) {
-        emit(state.copyWith(isLoading: false, isSuccess: true));
+      (user) {
+        emit(state.copyWith(isLoading: false, isSuccess: true,user: user));
         add(
           NavigateToHomeView(
             context: event.context,

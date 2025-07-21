@@ -23,7 +23,7 @@ ReviewApiModel _$ReviewApiModelFromJson(Map<String, dynamic> json) =>
       id: json['_id'] as String?,
       rating: (json['rating'] as num).toDouble(),
       comment: json['comment'] as String,
-      itemId: _itemFromJson(json['item_id']),
+      itemId: json['item_id'] as String,
       user:
           ReviewUserApiModel.fromJson(json['user_id'] as Map<String, dynamic>),
       createdAt: json['createdAt'] == null
@@ -33,10 +33,11 @@ ReviewApiModel _$ReviewApiModelFromJson(Map<String, dynamic> json) =>
 
 Map<String, dynamic> _$ReviewApiModelToJson(ReviewApiModel instance) =>
     <String, dynamic>{
-      '_id': instance.id,
+      if (instance.id case final value?) '_id': value,
       'rating': instance.rating,
       'comment': instance.comment,
       'item_id': instance.itemId,
       'user_id': _userToJson(instance.user),
-      'createdAt': instance.createdAt?.toIso8601String(),
+      if (instance.createdAt?.toIso8601String() case final value?)
+        'createdAt': value,
     };

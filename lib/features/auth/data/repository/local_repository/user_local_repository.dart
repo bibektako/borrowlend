@@ -36,13 +36,10 @@ class UserLocalRepository  implements IUserRepository{
   }
   
   @override
-  Future<Either<Failure, String>> loginUser(String email, String password) async{
-    try {
-      final userId = await _userLocalDatasource.loginUser(email, password);
-      return Right(userId);
-    } catch (e) {
-       return Left(LocalDatabaseFailure(message: 'Login failed $e'));
-    }
+  Future<Either<Failure, (UserEntity, String)>> loginUser(
+      String email, String password) async {
+    throw UnimplementedError(
+        'Login is a remote operation and is not supported by the local repository.');
   }
   
   @override

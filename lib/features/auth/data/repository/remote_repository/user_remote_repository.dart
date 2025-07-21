@@ -34,7 +34,7 @@ class UserRemoteRepository implements IUserRepository {
   }
 
   @override
-  Future<Either<Failure, String>> loginUser(
+  Future<Either<Failure, (UserEntity,String)>> loginUser(
     String email,
     String password,
   ) async {
