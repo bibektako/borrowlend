@@ -25,4 +25,13 @@ class ApiEndpoints {
   static const String items = "items";
 
   static const String getMyItems = "items/my-items";
+
+  //reviews
+  static const String createReview = "reviews/create";
+  static const String getReviews = "reviews"; // Used for GET / with query params
+  static const String updateReview = "reviews/"; // Append {id} for PUT
+  static const String deleteReview = "reviews/"; // Append {id} for DELETE
+  static const String getReviewById = "reviews/";
+
+
 }
