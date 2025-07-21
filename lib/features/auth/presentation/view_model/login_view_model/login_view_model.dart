@@ -1,5 +1,6 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
+import 'package:borrowlend/core/network/api_service.dart';
 import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:borrowlend/features/auth/presentation/view/forgot_password_view.dart';
 import 'package:borrowlend/features/auth/presentation/view/signup_view.dart';
@@ -12,11 +13,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginViewModel extends Bloc<LoginEvent, LoginState> {
   final LoginUserUsecase _loginUsecase;
+
   LoginViewModel(this._loginUsecase) : super(LoginState.initial()) {
     print("✅✅✅ LoginViewModel CREATED! HashCode: $hashCode ✅✅✅");
 
     on<NavigateToSignupView>(_onNavigateToSignupView);
-    // on<NavigateToForgotPasswordView>(_onNavigateToForgotPasswordView);
     on<NavigateToHomeView>(_onNavigateToHomeView);
     on<LoginIntoSystemEvent>(_onLoginWithEmailAndPassword);
   }
@@ -29,11 +30,10 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
       Navigator.push(
         event.context,
         MaterialPageRoute(
-          builder:
-              (context) => BlocProvider.value(
-                value: serviceLocator<SignupViewModel>(),
-                child: SignupView(),
-              ),
+          builder: (context) => BlocProvider.value(
+            value: serviceLocator<SignupViewModel>(),
+            child: SignupView(),
+          ),
         ),
       );
     }
@@ -58,7 +58,7 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     if (event.context.mounted) {
       Navigator.push(
         event.context,
-        MaterialPageRoute(builder: (_) => DashboardView()),
+        MaterialPageRoute(builder: (_) => const DashboardView()),
       );
     }
   }
@@ -68,28 +68,44 @@ class LoginViewModel extends Bloc<LoginEvent, LoginState> {
     Emitter<LoginState> emit,
   ) async {
     emit(state.copyWith(isLoading: true));
+
     final result = await _loginUsecase(
-      LoginUserUsecaseParams(email: event.email, password: event.password),
+      LoginUserUsecaseParams(
+        email: event.email,
+        password: event.password,
+      ),
     );
-    debugPrint(' debuggung testing' + result.toString());
+
+    if (isClosed) return;
+
     result.fold(
       (failure) {
+        if (isClosed) return;
         emit(state.copyWith(isLoading: false, isSuccess: false));
 
         showMySnackBar(
           context: event.context,
-          message: 'Invalid credentials. Please try again and again.',
+          message: 'Invalid credentials. Please try again.',
           color: Colors.red,
         );
       },
-      (user) {
-        emit(state.copyWith(isLoading: false, isSuccess: true,user: user));
-        add(
-          NavigateToHomeView(
-            context: event.context,
-            destination: DashboardView(),
-          ),
-        );
+      (response) {
+        // response = custom model having token and userData (parsed from API)
+        if (isClosed) return;
+
+        // Set token in ApiService
+        serviceLocator<ApiService>().setAuthToken(response.token);
+
+        emit(state.copyWith(
+          isLoading: false,
+          isSuccess: true,
+          user: response.user, // assume this is the user data (from "data" field)
+        ));
+
+        add(NavigateToHomeView(
+          context: event.context,
+          destination: const DashboardView(),
+        ));
       },
     );
   }

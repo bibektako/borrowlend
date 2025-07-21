@@ -34,4 +34,11 @@ class ApiEndpoints {
 
   static String getReviewById(String reviewId) => "reviews/$reviewId";
 
+  //bookings
+  static String createBorrowRequest(String itemId) => "borrow/request/$itemId";
+  static const String getBorrowRequests = "borrow/requests";
+  static const String getOngoingBorrowings = "borrow/ongoing";
+  static String updateBorrowRequest(String requestId) => "borrow/request/$requestId";
+
+
 }

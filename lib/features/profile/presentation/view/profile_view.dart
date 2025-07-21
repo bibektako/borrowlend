@@ -1,6 +1,8 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/core/common/Notifications_view.dart';
 import 'package:borrowlend/core/common/edit_profile_view.dart';
+import 'package:borrowlend/features/borrow/presentation/view/borrow_request_page.dart';
+import 'package:borrowlend/features/borrow/presentation/view/ongoing_borrows_view.dart';
 import 'package:borrowlend/features/profile/domain/entity/user_profile_entity.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_event.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_state.dart';
@@ -14,8 +16,9 @@ class ProfileView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => serviceLocator<ProfileViewModel>()
-        ..add(LoadUserProfile()),
+      create:
+          (context) =>
+              serviceLocator<ProfileViewModel>()..add(LoadUserProfile()),
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -44,12 +47,15 @@ class _ProfileViewBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileViewModel, ProfileState>(
       builder: (context, state) {
-        if (state.status == ProfileStatus.loading && state.userProfile == null) {
+        if (state.status == ProfileStatus.loading &&
+            state.userProfile == null) {
           return const Center(child: CircularProgressIndicator());
         }
 
         if (state.status == ProfileStatus.failure) {
-          return Center(child: Text(state.errorMessage ?? "An error occurred."));
+          return Center(
+            child: Text(state.errorMessage ?? "An error occurred."),
+          );
         }
 
         return RefreshIndicator(
@@ -109,41 +115,95 @@ class _ProfileViewBody extends StatelessWidget {
 
   Widget _buildProfileMenuList(BuildContext context) {
     final viewModel = context.read<ProfileViewModel>();
-    
+
     return Column(
       children: [
         _ProfileMenuItem(
           icon: Icons.person_outline,
           title: "My Profile",
           onTap: () {
-            viewModel.add(NavigateToProfilePage(
-              context: context,
-              destination: const EditProfileView(),
-            ));
+            viewModel.add(
+              NavigateToProfilePage(
+                context: context,
+                destination: const EditProfileView(),
+              ),
+            );
           },
         ),
-        _ProfileMenuItem(icon: Icons.settings_outlined, title: "Settings", onTap: () {}),
+        _ProfileMenuItem(
+          icon: Icons.library_books_outlined,
+          title: "Borrow Requests",
+          onTap: () {
+            final userId =
+                context.read<ProfileViewModel>().state.userProfile?.id;
+            if (userId != null) {
+              viewModel.add(
+                NavigateToProfilePage(
+                  context: context,
+                  destination: BorrowRequestsPage(currentUserId: userId),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Unable to load user ID")),
+              );
+            }
+          },
+        ),
+        _ProfileMenuItem(
+          icon: Icons.swap_horiz_outlined,
+          title: "Ongoing Borrowings",
+          onTap: () {
+            final userId =
+                context.read<ProfileViewModel>().state.userProfile?.id;
+            if (userId != null) {
+              viewModel.add(
+                NavigateToProfilePage(
+                  context: context,
+                  destination: OngoingBorrowPage(currentUserId: userId),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Unable to load user ID")),
+              );
+            }
+          },
+        ),
+
+        _ProfileMenuItem(
+          icon: Icons.settings_outlined,
+          title: "Settings",
+          onTap: () {},
+        ),
         _ProfileMenuItem(
           icon: Icons.notifications_outlined,
           title: "Notifications",
           onTap: () {
-            viewModel.add(NavigateToProfilePage(
-              context: context,
-              destination: const NotificationsView(),
-            ));
+            viewModel.add(
+              NavigateToProfilePage(
+                context: context,
+                destination: const NotificationsView(),
+              ),
+            );
           },
         ),
-        _ProfileMenuItem(icon: Icons.history_outlined, title: "Transaction History", onTap: () {}),
-        _ProfileMenuItem(icon: Icons.quiz_outlined, title: "FAQ", onTap: () {}),
-        _ProfileMenuItem(icon: Icons.info_outline, title: "About App", onTap: () {}),
+        _ProfileMenuItem(
+          icon: Icons.history_outlined,
+          title: "Transaction History",
+          onTap: () {},
+        ),
+        _ProfileMenuItem(
+          icon: Icons.info_outline,
+          title: "About App",
+          onTap: () {},
+        ),
         const Divider(height: 32, indent: 24, endIndent: 24),
         _ProfileMenuItem(
           icon: Icons.logout,
           title: "Logout",
           textColor: Colors.red,
-          onTap: () {
-            
-          },
+          onTap: () {},
         ),
       ],
     );
@@ -166,10 +226,24 @@ class _ProfileMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 4.0),
+      contentPadding: const EdgeInsets.symmetric(
+        horizontal: 24.0,
+        vertical: 4.0,
+      ),
       leading: Icon(icon, color: textColor ?? Colors.black87, size: 26),
-      title: Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: textColor)),
-      trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+      ),
+      trailing: Icon(
+        Icons.arrow_forward_ios,
+        size: 16,
+        color: Colors.grey.shade400,
+      ),
       onTap: onTap,
     );
   }

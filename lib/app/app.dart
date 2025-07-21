@@ -1,6 +1,7 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/app/theme/theme_data.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
 
 import 'package:borrowlend/features/splash/presentation/view/splashscreen_view.dart';
@@ -21,6 +22,9 @@ class App extends StatelessWidget {
 
         BlocProvider<ItemViewModel>(
           create: (context) => serviceLocator<ItemViewModel>(),
+        ),
+        BlocProvider<BorrowedItemsBloc>(
+          create: (context) => serviceLocator<BorrowedItemsBloc>(),
         ),
         
       ],

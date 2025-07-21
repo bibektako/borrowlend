@@ -21,3 +21,24 @@ final class NavigateToProfilePage extends ProfileEvent {
     required this.destination,
   });
 }
+
+final class NavigateToBorrowRequestsPage extends ProfileEvent {
+  final BuildContext context;
+  final String currentUserId;
+
+  NavigateToBorrowRequestsPage({
+    required this.context,
+    required this.currentUserId,
+  });
+}
+
+final class NavigateToOngoingBorrowPage extends ProfileEvent {
+  final BuildContext context;
+  final String currentUserId;
+
+  NavigateToOngoingBorrowPage({
+    required this.context,
+    required this.currentUserId,
+  });
+}
+

@@ -10,6 +10,14 @@ import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
+import 'package:borrowlend/features/borrow/data/datasource/borrow_remote_data_source.dart';
+import 'package:borrowlend/features/borrow/data/datasource/remort_datasource/borrowed_items_remote_datasource.dart';
+import 'package:borrowlend/features/borrow/data/repository/remote_repository/borrowed_items_remote_repository.dart';
+import 'package:borrowlend/features/borrow/domain/repository/borrowed_item_repository.dart';
+import 'package:borrowlend/features/borrow/domain/usecase/create_borrow_request.dart';
+import 'package:borrowlend/features/borrow/domain/usecase/get_borrow_request.dart';
+import 'package:borrowlend/features/borrow/domain/usecase/update_borrow_request.dart';
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/category/data/data_source/remote_data_source/category_remote_data_source.dart';
 import 'package:borrowlend/features/category/data/repository/remote_repository/category_remote_repository.dart';
 import 'package:borrowlend/features/category/domain/use_case/get_all_category_usecase.dart';
@@ -64,6 +72,7 @@ Future<void> initDependencies() async {
     await _initItemModule();
     await _initProfileModule();
     await _initReviewModule();
+    await _initBorrowModule();
   }
 }
 
@@ -94,6 +103,8 @@ Future<void> _initSpashModule() async {
     serviceLocator.registerFactory(
       () => SplashscreenViewModel(
         tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
+                apiService: serviceLocator<ApiService>(), 
+
       ),
     );
   }
@@ -380,3 +391,36 @@ Future<void> _initProfileModule() async {
     ),
   );
 }
+
+
+Future<void> _initBorrowModule() async {
+  // Data Source
+  serviceLocator.registerLazySingleton<IBorrowRemoteDataSource>(
+    () => BorrowedItemsRemoteDataSource(serviceLocator<ApiService>()),
+  );
+
+  // Repository
+  serviceLocator.registerFactory<BorrowedItemsRepository>(
+    () => BorrowedItemsRemoteRepository(serviceLocator<IBorrowRemoteDataSource>()),
+  );
+
+  // Use Cases
+  serviceLocator.registerFactory(() => CreateBorrowRequestUseCase(serviceLocator<BorrowedItemsRepository>()));
+  serviceLocator.registerFactory(() => GetBorrowRequestsUseCase(serviceLocator<BorrowedItemsRepository>()));
+  serviceLocator.registerFactory(() => UpdateBorrowRequestStatusUseCase(serviceLocator<BorrowedItemsRepository>()));
+
+  // ViewModel (Bloc)
+  serviceLocator.registerFactory<BorrowedItemsBloc>(
+  () => BorrowedItemsBloc(
+    getRequests: serviceLocator<GetBorrowRequestsUseCase>(),
+    updateStatus: serviceLocator<UpdateBorrowRequestStatusUseCase>(),
+    createRequest: serviceLocator<CreateBorrowRequestUseCase>(),
+  ),
+);
+
+}
+
+
+
+
+

@@ -50,6 +50,12 @@ class ReviewApiModel {
 
   Map<String, dynamic> toJson() => _$ReviewApiModelToJson(this);
 
+   Map<String, dynamic> toCreateJson() => {
+        'item_id': itemId,
+        'rating': rating,
+        'comment': comment,
+      };
+
   ReviewEntity toEntity() {
     return ReviewEntity(
       id: id,

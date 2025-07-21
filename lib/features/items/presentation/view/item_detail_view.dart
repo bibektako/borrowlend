@@ -1,5 +1,8 @@
 import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
+import 'package:borrowlend/features/borrow/presentation/view/borrow_button.dart';
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_event.dart';
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_state.dart';
@@ -94,13 +97,26 @@ class _ItemDetailViewState extends State<ItemDetailView> {
                         const SizedBox(height: 24),
                         _buildOwnerInfo(),
                         const SizedBox(height: 24),
-                        // 4. FIX the ReviewSection call to pass the correct parameters
                         ReviewSection(
                           itemId: widget.item.id!,
                           averageRating: widget.item.rating ?? 0.0,
                         ),
                         const SizedBox(height: 40),
-                        _buildBorrowButton(),
+                        BorrowButton(
+                          onPressed: () {
+                            context.read<BorrowedItemsBloc>().add(
+                              CreateBorrowRequest(widget.item.id!),
+                            );
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Borrow request sent!"),
+                              ),
+                            );
+
+                            Navigator.pop(context);
+                          },
+                        ),
                         const SizedBox(height: 20),
                       ]),
                     ),
@@ -149,11 +165,11 @@ class _ItemDetailViewState extends State<ItemDetailView> {
             onPressed: () {
               // 6. DISPATCH THE EVENT to the ItemViewModel.
               context.read<ItemViewModel>().add(
-                    ToggleBookmarkEvent(
-                      itemId: currentItem.id!,
-                      isCurrentlyBookmarked: currentItem.isBookmarked,
-                    ),
-                  );
+                ToggleBookmarkEvent(
+                  itemId: currentItem.id!,
+                  isCurrentlyBookmarked: currentItem.isBookmarked,
+                ),
+              );
             },
           ),
         ),
@@ -190,7 +206,7 @@ class _ItemDetailViewState extends State<ItemDetailView> {
               imagePath = imagePath.substring(1);
             }
             final imageUrl = '${ApiEndpoints.serverAddress}/$imagePath';
-            
+
             return Image.network(
               imageUrl,
               fit: BoxFit.cover,
@@ -315,25 +331,6 @@ class _ItemDetailViewState extends State<ItemDetailView> {
             ],
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildBorrowButton() {
-    return ElevatedButton(
-      onPressed: () {},
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF111827),
-        minimumSize: const Size(double.infinity, 56),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      child: const Text(
-        "Borrow Now",
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
       ),
     );
   }
