@@ -1,3 +1,4 @@
+import 'package:borrowlend/features/auth/data/model/user_api_model.dart';
 import 'package:equatable/equatable.dart';
 
 class UserEntity extends Equatable{
@@ -21,9 +22,16 @@ class UserEntity extends Equatable{
   
   });
 
+  factory UserEntity.fromJson(Map<String, dynamic> json) {
+    return UserApiModel.fromJson(json).toEntity();
+  }
+
+  Map<String, dynamic> toJson() {
+    return UserApiModel.fromEntity(this).toJson();
+  }
+
 
   @override
-  
   List<Object?> get props => [
     userId,
     username,

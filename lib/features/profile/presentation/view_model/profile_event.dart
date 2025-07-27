@@ -16,10 +16,7 @@ final class NavigateToProfilePage extends ProfileEvent {
   final BuildContext context;
   final Widget destination;
 
-  NavigateToProfilePage({
-    required this.context,
-    required this.destination,
-  });
+  NavigateToProfilePage({required this.context, required this.destination});
 }
 
 final class NavigateToBorrowRequestsPage extends ProfileEvent {
@@ -42,3 +39,11 @@ final class NavigateToOngoingBorrowPage extends ProfileEvent {
   });
 }
 
+class NavigateToLoginView extends ProfileEvent {
+  final BuildContext context;
+  final Widget destination;
+
+  NavigateToLoginView({required this.context, required this.destination});
+}
+
+class LogoutRequested extends ProfileEvent {}

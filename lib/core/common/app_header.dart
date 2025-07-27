@@ -25,6 +25,7 @@ class AppHeader extends StatelessWidget {
 
               // 4. Call the method to delete the token
               await tokenPrefs.deleteToken();
+              
 
               // 5. Navigate to the login screen and clear all previous routes
               if (context.mounted) {

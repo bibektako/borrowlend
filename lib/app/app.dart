@@ -1,6 +1,7 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/app/theme/theme_data.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
 
@@ -26,16 +27,17 @@ class App extends StatelessWidget {
         BlocProvider<BorrowedItemsBloc>(
           create: (context) => serviceLocator<BorrowedItemsBloc>(),
         ),
-        
+        BlocProvider<SessionCubit>(create: (context) => serviceLocator()),
       ],
 
-    child:  MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: BlocProvider.value(
-        value: serviceLocator<SplashscreenViewModel>(),
-        child: SplashscreenView(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: BlocProvider.value(
+          value: serviceLocator<SplashscreenViewModel>(),
+          child: SplashscreenView(),
+        ),
+        theme: getApplicationTheme(),
       ),
-      theme: getApplicationTheme(),)
     );
   }
 }

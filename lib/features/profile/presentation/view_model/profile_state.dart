@@ -1,16 +1,8 @@
 import 'package:borrowlend/features/profile/domain/entity/user_profile_entity.dart';
 import 'package:equatable/equatable.dart';
 
-/// Enum to represent the different statuses of the profile feature.
-/// This helps in building a reactive UI that responds to state changes.
-enum ProfileStatus {
-  initial,      // The state before any action has been taken.
-  loading,      // The app is fetching the user profile.
-  success,      // The user profile was fetched successfully.
-  failure,      // An error occurred while fetching or updating.
-  saving,       // The app is in the process of saving the user's updated profile.
-  saveSuccess   // The profile was saved successfully.
-}
+// The different statuses the profile screen can be in.
+enum ProfileStatus { initial, loading, success, failure, saving, logoutSuccess }
 
 class ProfileState extends Equatable {
   final ProfileStatus status;
@@ -18,18 +10,21 @@ class ProfileState extends Equatable {
   final String? errorMessage;
 
   const ProfileState({
-    required this.status,
+    this.status = ProfileStatus.initial,
     this.userProfile,
     this.errorMessage,
   });
 
+  // Initial state of the view model
   factory ProfileState.initial() {
-    return const ProfileState(status: ProfileStatus.initial);
+    return const ProfileState();
   }
 
+  // Helper method to create a copy of the state with new values
   ProfileState copyWith({
     ProfileStatus? status,
     UserProfileEntity? userProfile,
+    // Use a function for the error message to handle nullability cleanly
     String? Function()? errorMessage,
   }) {
     return ProfileState(

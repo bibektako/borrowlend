@@ -1,6 +1,5 @@
 import 'package:borrowlend/core/error/failure.dart';
 import 'package:borrowlend/features/profile/data/data_source/remote_data_source/profile_remote_datasource.dart';
-import 'package:borrowlend/features/profile/data/model/user_profile_api_model.dart';
 import 'package:borrowlend/features/profile/domain/entity/user_profile_entity.dart';
 import 'package:borrowlend/features/profile/domain/repository/profile_repository.dart';
 import 'package:dartz/dartz.dart';

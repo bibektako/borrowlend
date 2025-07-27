@@ -1,4 +1,6 @@
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/auth_status.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
 import 'package:borrowlend/features/review/domain/entity/review_entity.dart';
 import 'package:borrowlend/features/review/domain/usecase/create_review_usecase.dart';
 import 'package:borrowlend/features/review/domain/usecase/delete_review_usecae.dart';
@@ -13,19 +15,20 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
   final CreateReviewUsecase _createReviewUsecase;
   final UpdateReviewUsecase _updateReviewUsecase;
   final DeleteReviewUsecase _deleteReviewUsecase;
-  final LoginViewModel loginViewModel;
+  final SessionCubit _sessionCubit;
 
   ReviewViewModel({
     required GetReviewsUsecase getReviewsUsecase,
     required CreateReviewUsecase createReviewUsecase,
     required UpdateReviewUsecase updateReviewUsecase,
     required DeleteReviewUsecase deleteReviewUsecase,
-    required this.loginViewModel,
-  })  : _getReviewsUsecase = getReviewsUsecase,
-        _createReviewUsecase = createReviewUsecase,
-        _updateReviewUsecase = updateReviewUsecase,
-        _deleteReviewUsecase = deleteReviewUsecase,
-        super(const ReviewInitial()) {
+    required SessionCubit sessionCubit,
+  }) : _getReviewsUsecase = getReviewsUsecase,
+       _createReviewUsecase = createReviewUsecase,
+       _updateReviewUsecase = updateReviewUsecase,
+       _deleteReviewUsecase = deleteReviewUsecase,
+       _sessionCubit = sessionCubit,
+       super(const ReviewInitial()) {
     on<ReviewsFetched>(_onReviewsFetched);
     on<ReviewSubmitted>(_onReviewSubmitted);
     on<ReviewUpdated>(_onReviewUpdated);
@@ -50,20 +53,18 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
   ) async {
     if (state is! ReviewSuccess) return;
     final currentReviews = (state as ReviewSuccess).reviews;
-    final loginState = loginViewModel.state;
+    final sessionState = _sessionCubit.state;
     print("--- DEBUGGING REVIEW SUBMISSION ---");
-    print("LoginViewModel instance hashCode: ${loginViewModel.hashCode}");
-    print("Current LoginState is: ${loginState.toString()}");
-    print("Is login successful? --> ${loginState.isSuccess}");
-    print("Does login state have a user? --> ${loginState.user != null}");
-    
+    print("LoginViewModel instance hashCode: ${_sessionCubit.hashCode}");
 
-
-    if (!loginState.isSuccess || loginState.user == null) {
-      emit(ReviewSuccess(
-        reviews: currentReviews,
-        successMessage: 'Error: You must be logged in to post a review.',
-      ));
+    if (sessionState.status != AuthStatus.authenticated ||
+        sessionState.user == null) {
+      emit(
+        ReviewSuccess(
+          reviews: currentReviews,
+          successMessage: 'Error: You must be logged in to post a review.',
+        ),
+      );
       return;
     }
     print("Check PASSED. Proceeding to create review.");
@@ -72,8 +73,8 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
     emit(ReviewActionInProgress(currentReviews));
 
     final currentUser = ReviewUserEntity(
-      id: loginState.user!.userId!,
-      username: loginState.user!.username,
+      id: sessionState.user!.userId!,
+      username: sessionState.user!.username,
     );
 
     final reviewEntity = ReviewEntity(
@@ -87,7 +88,12 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
 
     result.fold(
       (failure) {
-        emit(ReviewSuccess(reviews: currentReviews, successMessage: 'Error: ${failure.message}'));
+        emit(
+          ReviewSuccess(
+            reviews: currentReviews,
+            successMessage: 'Error: ${failure.message}',
+          ),
+        );
       },
       (_) {
         add(ReviewsFetched(itemId: event.itemId));
@@ -112,9 +118,15 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
     final result = await _updateReviewUsecase(params);
 
     result.fold(
-      (failure) => emit(ReviewSuccess(reviews: currentReviews, successMessage: 'Error: ${failure.message}')),
+      (failure) => emit(
+        ReviewSuccess(
+          reviews: currentReviews,
+          successMessage: 'Error: ${failure.message}',
+        ),
+      ),
       (_) {
-        final itemId = currentReviews.firstWhere((r) => r.id == event.reviewId).itemId;
+        final itemId =
+            currentReviews.firstWhere((r) => r.id == event.reviewId).itemId;
         add(ReviewsFetched(itemId: itemId));
       },
     );
@@ -128,13 +140,20 @@ class ReviewViewModel extends Bloc<ReviewEvent, ReviewState> {
     final currentReviews = (state as ReviewSuccess).reviews;
 
     emit(ReviewActionInProgress(currentReviews));
-    
+
     final result = await _deleteReviewUsecase(event.reviewId);
 
     result.fold(
-      (failure) => emit(ReviewSuccess(reviews: currentReviews, successMessage: 'Error: ${failure.message}')),
+      (failure) => emit(
+        ReviewSuccess(
+          reviews: currentReviews,
+          successMessage: 'Error: ${failure.message}',
+        ),
+      ),
       (_) {
-        final reviewToDelete = currentReviews.firstWhere((r) => r.id == event.reviewId);
+        final reviewToDelete = currentReviews.firstWhere(
+          (r) => r.id == event.reviewId,
+        );
         add(ReviewsFetched(itemId: reviewToDelete.itemId));
       },
     );

@@ -9,6 +9,7 @@ import 'package:borrowlend/features/auth/domain/use_case/create_user_usecase.dar
 import 'package:borrowlend/features/auth/domain/use_case/login_user_usecase.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/onbording_view_model/onbording_view_model.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/signup_view_model/signup_view_model.dart';
 import 'package:borrowlend/features/borrow/data/datasource/borrow_remote_data_source.dart';
 import 'package:borrowlend/features/borrow/data/datasource/remort_datasource/borrowed_items_remote_datasource.dart';
@@ -65,6 +66,7 @@ Future<void> initDependencies() async {
     await _initHiveService();
     await _initApiService();
     await _initSharedPrefs();
+    serviceLocator.registerLazySingleton<SessionCubit>(() => SessionCubit());
     await _initAuthModule();
     await _initSpashModule();
     await _initOnbordingModule();
@@ -103,8 +105,7 @@ Future<void> _initSpashModule() async {
     serviceLocator.registerFactory(
       () => SplashscreenViewModel(
         tokenSharedPrefs: serviceLocator<TokenSharedPrefs>(),
-                apiService: serviceLocator<ApiService>(), 
-
+        apiService: serviceLocator<ApiService>(),
       ),
     );
   }
@@ -179,7 +180,8 @@ Future<void> _initAuthModule() async {
   }
   if (!serviceLocator.isRegistered<LoginViewModel>()) {
     serviceLocator.registerLazySingleton<LoginViewModel>(
-      () => LoginViewModel(serviceLocator<LoginUserUsecase>()),
+      () =>
+          LoginViewModel(serviceLocator<LoginUserUsecase>(), serviceLocator()),
     );
   }
 }
@@ -297,7 +299,6 @@ Future<void> _initItemModule() async {
     );
   }
 
-
   if (!serviceLocator.isRegistered<ItemViewModel>()) {
     serviceLocator.registerLazySingleton<ItemViewModel>(
       () => ItemViewModel(
@@ -313,6 +314,7 @@ Future<void> _initItemModule() async {
     );
   }
 }
+
 Future<void> _initReviewModule() async {
   // Data Layer
   // Register ReviewRemoteDataSource as the implementation for IReviewDataSource
@@ -325,7 +327,9 @@ Future<void> _initReviewModule() async {
   // Register RemoteReviewRepository as the implementation for IReviewRepository
   if (!serviceLocator.isRegistered<IReviewRepository>()) {
     serviceLocator.registerFactory<IReviewRepository>(
-      () => RemoteReviewRepository(dataSource: serviceLocator<IReviewDataSource>()),
+      () => RemoteReviewRepository(
+        dataSource: serviceLocator<IReviewDataSource>(),
+      ),
     );
   }
 
@@ -337,17 +341,20 @@ Future<void> _initReviewModule() async {
   }
   if (!serviceLocator.isRegistered<CreateReviewUsecase>()) {
     serviceLocator.registerFactory<CreateReviewUsecase>(
-      () => CreateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+      () =>
+          CreateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
     );
   }
   if (!serviceLocator.isRegistered<UpdateReviewUsecase>()) {
     serviceLocator.registerFactory<UpdateReviewUsecase>(
-      () => UpdateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+      () =>
+          UpdateReviewUsecase(repository: serviceLocator<IReviewRepository>()),
     );
   }
   if (!serviceLocator.isRegistered<DeleteReviewUsecase>()) {
     serviceLocator.registerFactory<DeleteReviewUsecase>(
-      () => DeleteReviewUsecase(repository: serviceLocator<IReviewRepository>()),
+      () =>
+          DeleteReviewUsecase(repository: serviceLocator<IReviewRepository>()),
     );
   }
 
@@ -358,8 +365,7 @@ Future<void> _initReviewModule() async {
         createReviewUsecase: serviceLocator<CreateReviewUsecase>(),
         updateReviewUsecase: serviceLocator<UpdateReviewUsecase>(),
         deleteReviewUsecase: serviceLocator<DeleteReviewUsecase>(),
-        loginViewModel: serviceLocator<LoginViewModel>(),
-
+        sessionCubit: serviceLocator<SessionCubit>(),
       ),
     );
   }
@@ -386,12 +392,12 @@ Future<void> _initProfileModule() async {
   serviceLocator.registerFactory<ProfileViewModel>(
     () => ProfileViewModel(
       getProfileUseCase: serviceLocator<GetProfileUseCase>(),
+      sessionCubit: serviceLocator(),
       // updateProfileUseCase: serviceLocator<UpdateProfileUseCase>(),
       // logoutUseCase: serviceLocator<LogoutUseCase>(), // Dependency for logout logic
     ),
   );
 }
-
 
 Future<void> _initBorrowModule() async {
   // Data Source
@@ -401,26 +407,30 @@ Future<void> _initBorrowModule() async {
 
   // Repository
   serviceLocator.registerFactory<BorrowedItemsRepository>(
-    () => BorrowedItemsRemoteRepository(serviceLocator<IBorrowRemoteDataSource>()),
+    () => BorrowedItemsRemoteRepository(
+      serviceLocator<IBorrowRemoteDataSource>(),
+    ),
   );
 
   // Use Cases
-  serviceLocator.registerFactory(() => CreateBorrowRequestUseCase(serviceLocator<BorrowedItemsRepository>()));
-  serviceLocator.registerFactory(() => GetBorrowRequestsUseCase(serviceLocator<BorrowedItemsRepository>()));
-  serviceLocator.registerFactory(() => UpdateBorrowRequestStatusUseCase(serviceLocator<BorrowedItemsRepository>()));
+  serviceLocator.registerFactory(
+    () => CreateBorrowRequestUseCase(serviceLocator<BorrowedItemsRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => GetBorrowRequestsUseCase(serviceLocator<BorrowedItemsRepository>()),
+  );
+  serviceLocator.registerFactory(
+    () => UpdateBorrowRequestStatusUseCase(
+      serviceLocator<BorrowedItemsRepository>(),
+    ),
+  );
 
   // ViewModel (Bloc)
   serviceLocator.registerFactory<BorrowedItemsBloc>(
-  () => BorrowedItemsBloc(
-    getRequests: serviceLocator<GetBorrowRequestsUseCase>(),
-    updateStatus: serviceLocator<UpdateBorrowRequestStatusUseCase>(),
-    createRequest: serviceLocator<CreateBorrowRequestUseCase>(),
-  ),
-);
-
+    () => BorrowedItemsBloc(
+      getRequests: serviceLocator<GetBorrowRequestsUseCase>(),
+      updateStatus: serviceLocator<UpdateBorrowRequestStatusUseCase>(),
+      createRequest: serviceLocator<CreateBorrowRequestUseCase>(),
+    ),
+  );
 }
-
-
-
-
-

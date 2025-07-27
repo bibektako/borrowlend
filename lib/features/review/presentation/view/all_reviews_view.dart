@@ -1,4 +1,6 @@
 import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/auth_status.dart';
+import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:borrowlend/features/review/domain/entity/review_entity.dart';
@@ -140,10 +142,10 @@ class _AllReviewsViewState extends State<AllReviewsView> {
 
   @override
   Widget build(BuildContext context) {
-    final loginState = context.watch<LoginViewModel>().state;
     String? currentUserId;
-    if (loginState.isSuccess && loginState.user != null) {
-      currentUserId = loginState.user!.userId;
+    final sessionState = context.watch<SessionCubit>().state;
+    if (sessionState.status == AuthStatus.authenticated) {
+      currentUserId = sessionState.user?.userId;
     }
 
     return Scaffold(
@@ -209,6 +211,8 @@ class _AllReviewsViewState extends State<AllReviewsView> {
             itemCount: reviews.length,
             itemBuilder: (context, index) {
               final review = reviews[index];
+              print("current: $currentUserId");
+              print("review: ${review.user.id}");
               final isCurrentUserReview = review.user.id == currentUserId;
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8.0),
