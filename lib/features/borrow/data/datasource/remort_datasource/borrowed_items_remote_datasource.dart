@@ -20,8 +20,33 @@ class BorrowedItemsRemoteDataSource implements IBorrowRemoteDataSource {
   Future<List<BorrowRequestModel>> getBorrowRequests() async {
     await _apiService.ensureAuthTokenLoaded();
     final res = await _apiService.dio.get(ApiEndpoints.getBorrowRequests);
-    final data = res.data['data'] as List;
-    return data.map((json) => BorrowRequestModel.fromJson(json)).toList();
+    final responseData = res.data['data'];
+
+    if (responseData == null || responseData is! List) {
+      return [];
+    }
+    
+    final sanitizedList = responseData.where((json) {
+      if (json is! Map<String, dynamic>) return false;
+
+      final bool isValid = json['item'] != null &&
+                           json['borrower'] != null &&
+                           json['owner'] != null;
+
+      if (!isValid) {
+        print('Warning: Skipping corrupt or incomplete record from API: $json');
+      }
+      
+      return isValid;
+    }).toList();
+
+    // Now, map the CLEAN and SANITIZED list. This will no longer crash because
+    // every item is guaranteed to have the required fields.
+    return sanitizedList
+        .map((json) => BorrowRequestModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+    // final data = res.data['data'] as List;
+    // return data.map((json) => BorrowRequestModel.fromJson(json)).toList();
   }
 
   @override

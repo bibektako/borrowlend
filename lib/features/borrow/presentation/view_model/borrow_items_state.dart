@@ -22,6 +22,14 @@ class BorrowedItemsLoaded extends BorrowedItemsState {
   @override
   List<Object?> get props => [_requests];
 }
+class BorrowActionSuccess extends BorrowedItemsState {
+  final String message;
+
+  const BorrowActionSuccess(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}
 
 class BorrowedItemsError extends BorrowedItemsState {
   final String message;

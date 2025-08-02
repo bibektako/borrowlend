@@ -2,6 +2,8 @@ import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/app/shared_pref/token_shared_prefs.dart';
 import 'package:borrowlend/core/network/api_service.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
+import 'package:borrowlend/features/borrow/presentation/view/borrow_request_page.dart';
+import 'package:borrowlend/features/borrow/presentation/view/ongoing_borrows_view.dart';
 import 'package:borrowlend/features/profile/domain/use_case/get_profile_usecase.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_event.dart';
 import 'package:borrowlend/features/profile/presentation/view_model/profile_state.dart';
@@ -21,6 +23,8 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
     // Register all event handlers
     on<LoadUserProfile>(_onLoadUserProfile);
     on<NavigateToProfilePage>(_onNavigateToProfilePage);
+    on<NavigateToBorrowRequestsPage>(_onNavigateToBorrowRequestsPage);
+    on<NavigateToOngoingBorrowPage>(_onNavigateToOngoingBorrowPage);
     on<LogoutRequested>(_onLogoutRequested);
   }
 
@@ -56,21 +60,40 @@ class ProfileViewModel extends Bloc<ProfileEvent, ProfileState> {
       );
     }
   }
+  
+Future<void> _onNavigateToBorrowRequestsPage(
+    NavigateToBorrowRequestsPage event,
+    Emitter<ProfileState> emit,
+  ) async {
+    await Navigator.push(
+      event.context,
+      MaterialPageRoute(
+        builder: (context) => BorrowRequestsPage(currentUserId: event.currentUserId),
+      ),
+    );
+  }
 
-  /// Handles the entire logout process and emits the final state.
+  Future<void> _onNavigateToOngoingBorrowPage(
+    NavigateToOngoingBorrowPage event,
+    Emitter<ProfileState> emit,
+  ) async {
+    await Navigator.push(
+      event.context,
+      MaterialPageRoute(
+        builder: (context) => OngoingBorrowPage(currentUserId: event.currentUserId),
+      ),
+    );
+  }
+
   Future<void> _onLogoutRequested(
     LogoutRequested event,
     Emitter<ProfileState> emit,
   ) async {
-    // 1. Clear the persistent session state from HydratedBloc
     _sessionCubit.clearSession();
 
-    // 2. Clear the token from shared preferences
     await serviceLocator<TokenSharedPrefs>().deleteToken();
 
-    // 3. Clear the token from the ApiService instance
 
-    // 4. Emit the success state to notify the UI. The BLoC's job is done.
     emit(
       state.copyWith(status: ProfileStatus.logoutSuccess, userProfile: null),
     );

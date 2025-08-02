@@ -56,6 +56,7 @@ dependencies:
   collection: ^1.19.1
   rxdart: ^0.28.0
   hydrated_bloc: ^10.1.1
+  light: ^4.1.0
 
 dev_dependencies:
   flutter_test:

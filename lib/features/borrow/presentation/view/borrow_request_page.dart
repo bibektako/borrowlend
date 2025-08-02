@@ -14,7 +14,8 @@ class BorrowRequestsPage extends StatefulWidget {
 }
 
 class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
-  static const String _baseImageUrl = "http://localhost:5050/"; // 👈 Change to IP if testing on device
+  static const String _baseImageUrl =
+      "http://localhost:5050/"; // 👈 Change to IP if testing on device
 
   @override
   void initState() {
@@ -43,7 +44,9 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
           }
 
           if (state is BorrowedItemsLoaded) {
-            debugPrint("✅ Loaded ${state.requests.length} total borrow requests");
+            debugPrint(
+              "✅ Loaded ${state.requests.length} total borrow requests",
+            );
 
             for (var req in state.requests) {
               debugPrint("📦 Borrow Request:");
@@ -54,12 +57,16 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
               debugPrint("   ▶ status: ${req.status}");
             }
 
-            final filtered = state.requests.where((r) {
-              final matchesOwner = r.owner.id == widget.currentUserId;
-              final isPending = r.status.toLowerCase() == 'pending';
-              debugPrint("🔎 Filtering request: ownerMatch=$matchesOwner, statusMatch=$isPending");
-              return matchesOwner && isPending;
-            }).toList();
+            final filtered =
+                state.requests.where((r) {
+                  final amIOwner = r.owner.id == widget.currentUserId;
+                  final isOngoing = [
+                    'pending',
+                    'approved',
+                    'requested',
+                  ].contains(r.status.toLowerCase());
+                  return amIOwner && isOngoing;
+                }).toList();
 
             debugPrint("📥 Total filtered requests: ${filtered.length}");
 
@@ -72,9 +79,10 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
               itemBuilder: (context, index) {
                 final request = filtered[index];
                 final item = request.item;
-                final imageUrl = item.imageUrls.isNotEmpty
-                    ? _baseImageUrl + item.imageUrls.first
-                    : null;
+                final imageUrl =
+                    item.imageUrls.isNotEmpty
+                        ? _baseImageUrl + item.imageUrls.first
+                        : null;
 
                 return Card(
                   margin: const EdgeInsets.all(12),
@@ -95,8 +103,9 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                               height: 180,
                               width: double.infinity,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const Text("⚠️ Failed to load image"),
+                              errorBuilder:
+                                  (_, __, ___) =>
+                                      const Text("⚠️ Failed to load image"),
                             ),
                           ),
                         const SizedBox(height: 12),
@@ -124,11 +133,11 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                               ),
                               onPressed: () {
                                 context.read<BorrowedItemsBloc>().add(
-                                      UpdateBorrowRequestStatus(
-                                        request.id ?? '',
-                                        'approved',
-                                      ),
-                                    );
+                                  UpdateBorrowRequestStatus(
+                                    request.id ?? '',
+                                    'approved',
+                                  ),
+                                );
                               },
                             ),
                             const SizedBox(width: 10),
@@ -140,11 +149,11 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                               ),
                               onPressed: () {
                                 context.read<BorrowedItemsBloc>().add(
-                                      UpdateBorrowRequestStatus(
-                                        request.id ?? '',
-                                        'denied',
-                                      ),
-                                    );
+                                  UpdateBorrowRequestStatus(
+                                    request.id ?? '',
+                                    'denied',
+                                  ),
+                                );
                               },
                             ),
                           ],

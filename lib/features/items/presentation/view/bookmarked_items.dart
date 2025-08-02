@@ -1,5 +1,6 @@
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/items/presentation/view/item_card.dart';
+import 'package:borrowlend/features/items/presentation/view/item_detail_view.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_state.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
@@ -68,7 +69,16 @@ class BookmarksView extends StatelessWidget {
                 itemCount: state.bookmarkedItems.length,
                 itemBuilder: (context, index) {
                   final item = state.bookmarkedItems[index];
-                  return ItemCard(item: item);
+                  return ItemCard(
+                    item: item,
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => ItemDetailView(item: item),
+                        ),
+                      );
+                    },
+                  );
                 },
               );
             },

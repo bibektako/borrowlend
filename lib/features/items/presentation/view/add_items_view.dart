@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_state.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
@@ -8,7 +9,7 @@ import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:collection/collection.dart'; 
+import 'package:collection/collection.dart';
 
 class AddItemView extends StatelessWidget {
   const AddItemView({super.key});
@@ -21,15 +22,23 @@ class AddItemView extends StatelessWidget {
       listenWhen: (p, c) => p.formStatus != c.formStatus,
       listener: (context, state) {
         if (state.formStatus == FormStatus.success) {
-         
+          showMySnackBar(
+            context: context,
+            message: "Item listed successfully!",
+            type: SnackBarType.success,
+          );
           Future.delayed(Duration.zero, () {
             if (Navigator.of(context).canPop()) {
               Navigator.of(context).pop();
             }
           });
         } else if (state.formStatus == FormStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage ?? 'Failed to add item')));
+          showMySnackBar(
+            context: context,
+            message:
+                state.errorMessage ?? 'Failed to add item. Please try again.',
+            type: SnackBarType.error,
+          );
         }
       },
       child: Scaffold(

@@ -45,6 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+<string>This app uses the camera to access the ambient light sensor for automatic theme switching.</string>
 	
 </dict>
 </plist>

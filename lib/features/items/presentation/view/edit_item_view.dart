@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:borrowlend/app/constant/api_endpoints.dart';
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_state.dart';
 import 'package:borrowlend/features/category/presentation/view_model/category_viewmodel.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
@@ -27,30 +28,56 @@ class EditItemView extends StatelessWidget {
 
     final ImagePicker picker = ImagePicker();
 
-    return BlocListener<ItemViewModel, ItemState>(
-      listenWhen: (p, c) => p.formStatus != c.formStatus,
-      listener: (context, state) {
-        if (state.formStatus == FormStatus.success) {
-          // Use a delayed pop to avoid build errors
-          Future.delayed(Duration.zero, () {
-            if (Navigator.of(context).canPop()) {
-              Navigator.of(context).pop();
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ItemViewModel, ItemState>(
+          listenWhen: (p, c) => p.formStatus != c.formStatus,
+          listener: (context, state) {
+            if (state.formStatus == FormStatus.success) {
+              showMySnackBar(
+                context: context,
+                message: state.successMessage ?? "Changes saved successfully",
+                type: SnackBarType.success,
+              );
+              Future.delayed(const Duration(milliseconds: 100), () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              });
+            } else if (state.formStatus == FormStatus.failure) {
+              showMySnackBar(
+                context: context,
+                message: state.errorMessage ?? 'An error occurred.',
+                type: SnackBarType.error,
+              );
             }
-          });
-        } else if (state.formStatus == FormStatus.failure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.errorMessage ?? 'Failed to save changes'),
-            ),
-          );
-        }
-      },
+          },
+        ),
+
+        // LISTENER 2: Specifically handles feedback for new image selection
+        BlocListener<ItemViewModel, ItemState>(
+          listenWhen: (p, c) => p.imagePaths != c.imagePaths,
+          listener: (context, state) {
+            // Only show if a new local image was picked.
+            if (state.imagePaths.isNotEmpty &&
+                !state.imagePaths.first.startsWith('http')) {
+              showMySnackBar(
+                context: context,
+                message: "Image selected",
+                type: SnackBarType.info,
+              );
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Edit Item'),
           actions: [
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: Colors.red),
+              icon: const Icon(Icons.delete_outline),
+              color: Theme.of(context).colorScheme.error, // Themed icon
+
               onPressed: () async {
                 final confirm = await showDialog<bool>(
                   context: context,
@@ -79,7 +106,6 @@ class EditItemView extends StatelessWidget {
                   context.read<ItemViewModel>().add(
                     DeleteItemEvent(itemId: itemToEdit.id!),
                   );
-                  // The listener will handle popping the screen on success.
                 }
               },
             ),

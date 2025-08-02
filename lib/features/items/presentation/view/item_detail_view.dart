@@ -2,6 +2,7 @@ import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/features/borrow/presentation/view/borrow_button.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_event.dart';
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_state.dart'; // <-- Import state file
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
@@ -22,6 +23,7 @@ class ItemDetailView extends StatefulWidget {
 }
 
 class _ItemDetailViewState extends State<ItemDetailView> {
+  // ... (initState and dispose methods are unchanged)
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -46,14 +48,22 @@ class _ItemDetailViewState extends State<ItemDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ReviewViewModel>(
-      create: (context) => serviceLocator<ReviewViewModel>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ReviewViewModel>(
+          create: (context) => serviceLocator<ReviewViewModel>(),
+        ),
+        // Ensure BorrowedItemsBloc is provided if not already available higher up
+        // If it's already provided by a parent widget, you can remove this.
+        BlocProvider<BorrowedItemsBloc>(
+          create: (context) => serviceLocator<BorrowedItemsBloc>(),
+        ),
+      ],
       child: BlocBuilder<ItemViewModel, ItemState>(
         builder: (context, state) {
           final currentItem = state.items.firstWhere(
             (i) => i.id == widget.item.id,
-            orElse:
-                () => widget.item, // Fallback to the initial item if not found
+            orElse: () => widget.item,
           );
 
           return Scaffold(
@@ -102,20 +112,55 @@ class _ItemDetailViewState extends State<ItemDetailView> {
                           averageRating: widget.item.rating ?? 0.0,
                         ),
                         const SizedBox(height: 40),
-                        BorrowButton(
-                          onPressed: () {
-                            context.read<BorrowedItemsBloc>().add(
-                              CreateBorrowRequest(widget.item.id!),
-                            );
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text("Borrow request sent!"),
-                              ),
-                            );
-
-                            Navigator.pop(context);
+                        // --- THIS IS THE FIX ---
+                        // Wrap the BorrowButton with a BlocListener to handle feedback.
+                        BlocListener<BorrowedItemsBloc, BorrowedItemsState>(
+                          listener: (context, borrowState) {
+                            if (borrowState is BorrowActionSuccess) {
+                              // Show GREEN snackbar on success
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(borrowState.message),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              // Pop the screen after success
+                              Navigator.pop(context);
+                            } else if (borrowState is BorrowedItemsError) {
+                              // Show RED snackbar on error
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(borrowState.message),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
                           },
+                          child: BlocBuilder<
+                            BorrowedItemsBloc,
+                            BorrowedItemsState
+                          >(
+                            builder: (context, borrowState) {
+                              // Disable the button while an action is in progress
+                              final bool isLoading =
+                                  borrowState is BorrowedItemsLoading;
+                              return BorrowButton(
+                                onPressed:
+                                    isLoading
+                                        ? () {} // Do nothing if loading
+                                        : () {
+                                          // The onPressed callback NOW ONLY dispatches the event.
+                                          // The BlocListener will handle the UI feedback.
+                                          context.read<BorrowedItemsBloc>().add(
+                                            CreateBorrowRequest(
+                                              widget.item.id!,
+                                            ),
+                                          );
+                                        },
+                              );
+                            },
+                          ),
                         ),
                         const SizedBox(height: 20),
                       ]),
@@ -130,7 +175,6 @@ class _ItemDetailViewState extends State<ItemDetailView> {
     );
   }
 
-  // ... (The rest of your code (_buildSliverAppBar, etc.) remains unchanged)
   SliverAppBar _buildSliverAppBar(
     BuildContext context,
     ItemEntity currentItem,

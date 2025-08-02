@@ -13,6 +13,8 @@ class ItemState extends Equatable {
   final List<ItemEntity> items;
   final List<ItemEntity> bookmarkedItems;
     final List<ItemEntity> myItems; 
+      final String? successMessage; 
+
 
   final Set<String> bookmarkedItemIds;
 
@@ -25,6 +27,7 @@ class ItemState extends Equatable {
   final String description;
   final String price;
   final List<String> imagePaths;
+  
   final CategoryEntity selectedCategory;
   final ItemEntity? itemToEdit;
 
@@ -35,7 +38,8 @@ class ItemState extends Equatable {
     required this.bookmarkedItems,
     required this.bookmarkedItemIds,
     required this.myItems,
-    
+        this.successMessage,
+
 
     this.errorMessage,
 
@@ -58,6 +62,7 @@ class ItemState extends Equatable {
       myItems: [],
 
       errorMessage: null,
+      successMessage: null,
 
       formStatus: FormStatus.initial,
       name: '',
@@ -77,6 +82,7 @@ class ItemState extends Equatable {
       List<ItemEntity>? myItems, // <-- ADD TO copyWith
 
     String? errorMessage,
+    String ? successMessage,
 
 
      FormStatus? formStatus,
@@ -99,7 +105,7 @@ class ItemState extends Equatable {
           status == ItemStatus.failure
               ? (errorMessage ?? this.errorMessage)
               : null,
-
+      successMessage: status == ItemStatus.success ? (successMessage ?? this.successMessage): null,
       
       formStatus: formStatus ?? this.formStatus,
       name: name ?? this.name,
@@ -112,5 +118,5 @@ class ItemState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, items, bookmarkedItems,myItems, errorMessage , formStatus, name, description,price,imagePaths, selectedCategory, itemToEdit];
+  List<Object?> get props => [status, items, bookmarkedItems,myItems, errorMessage ,successMessage, formStatus, name, description,price,imagePaths, selectedCategory, itemToEdit];
 }

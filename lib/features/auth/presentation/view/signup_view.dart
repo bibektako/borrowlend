@@ -29,7 +29,6 @@ class SignupView extends StatelessWidget {
           showMySnackBar(
             context: context,
             message: "Registration Successful!",
-            color: Colors.green,
           );
           // After success, navigate to the login screen, replacing the current one.
           Navigator.of(
@@ -41,7 +40,6 @@ class SignupView extends StatelessWidget {
           showMySnackBar(
             context: context,
             message: state.errorMessage!,
-            color: Colors.red,
           );
         }
       },
