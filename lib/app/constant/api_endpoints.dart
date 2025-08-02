@@ -6,9 +6,9 @@ class ApiEndpoints {
   static const receiveTimeout = Duration(seconds: 1000);
 
   //connection with local host
-  static const String serverAddress = "http://localhost:5050";
+  // static const String serverAddress = "http://localhost:5050";
 
-  // static const String serverAddress = "http://10.0.2.2:5050";
+  static const String serverAddress = "http://192.168.2.106:5050";
 
   static const String baseUrl = "$serverAddress/api/";
   //Auth
@@ -28,7 +28,7 @@ class ApiEndpoints {
 
   //reviews
   static const String createReview = "reviews/create";
-  static const String reviews = "reviews"; 
+  static const String reviews = "reviews";
   static String updateReview(String reviewId) => "reviews/$reviewId";
   static String deleteReview(String reviewId) => "reviews/$reviewId";
 
@@ -38,9 +38,8 @@ class ApiEndpoints {
   static String createBorrowRequest(String itemId) => "borrow/request/$itemId";
   static const String getBorrowRequests = "borrow/requests";
   static const String getOngoingBorrowings = "borrow/ongoing";
-  static String updateBorrowRequest(String requestId) => "borrow/request/$requestId";
-  
-static const String getNotifications = "notifications"; 
+  static String updateBorrowRequest(String requestId) =>
+      "borrow/request/$requestId";
 
-
+  static const String getNotifications = "notifications";
 }

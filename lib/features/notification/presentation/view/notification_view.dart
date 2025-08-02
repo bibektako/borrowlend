@@ -13,88 +13,106 @@ class _NotificationScreenState extends State<NotificationScreen> {
   @override
   void initState() {
     super.initState();
-    // Use WidgetsBinding.instance.addPostFrameCallback to ensure that the
-    // context is available when we access the provider.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // This simple, parameter-less call is all that's needed.
-      // The ViewModel is now entirely responsible for getting the
-      // current user's ID from the SessionCubit.
-      // 'listen: false' is crucial because we are only dispatching an action,
-      // not listening to state changes within initState.
       Provider.of<NotificationViewModel>(context, listen: false).initialize();
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Notifications"),
-        centerTitle: false, // Or true, based on your app's style
-      ),
-      // The Consumer widget is the most efficient way to listen to a provider.
-      // It ensures that only this part of the widget tree rebuilds when
-      // the ViewModel calls notifyListeners().
+      appBar: AppBar(title: const Text("Notifications"), centerTitle: false),
       body: Consumer<NotificationViewModel>(
         builder: (context, viewModel, child) {
-          // --- 1. Loading State ---
-          // Show a loading spinner, but only on the initial load when the list is empty.
-          // This prevents the spinner from showing over existing data during a refresh.
           if (viewModel.isLoading && viewModel.notifications.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // --- 2. Empty State ---
-          // If loading is finished and there are still no notifications, show a helpful message.
           if (viewModel.notifications.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text(
-                  "You have no notifications yet.",
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                  textAlign: TextAlign.center,
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_off_outlined,
+                      size: 60,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "You have no notifications yet.",
+                      style: textTheme.bodyLarge?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             );
           }
 
-          // --- 3. Data State ---
-          // Display the list of notifications. The RefreshIndicator allows for pull-to-refresh.
           return RefreshIndicator(
             onRefresh: () => viewModel.fetchNotifications(),
-            child: ListView.builder(
+            child: ListView.separated(
+              padding: const EdgeInsets.all(16),
               itemCount: viewModel.notifications.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
-                // Get the specific notification entity for this list item
                 final notification = viewModel.notifications[index];
-                return ListTile(
-                  leading: Icon(
-                    notification.isRead
-                        ? Icons.mark_email_read_outlined
-                        : Icons.mark_email_unread_sharp,
-                    color: notification.isRead
-                        ? Colors.grey.shade600
-                        : Theme.of(context).colorScheme.primary,
-                    size: 28,
-                  ),
-                  title: Text(
-                    notification.message,
-                    style: TextStyle(
-                      fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+                final isRead = notification.isRead;
+
+                return Material(
+                  elevation: 1,
+                  borderRadius: BorderRadius.circular(12),
+                  color:
+                      isRead
+                          ? theme.cardColor
+                          : colorScheme.primary.withOpacity(0.06),
+                  child: ListTile(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    leading: CircleAvatar(
+                      backgroundColor:
+                          isRead
+                              ? Colors.grey[200]
+                              : colorScheme.primary.withOpacity(0.15),
+                      child: Icon(
+                        isRead
+                            ? Icons.mark_email_read_outlined
+                            : Icons.mark_email_unread_sharp,
+                        color: isRead ? Colors.grey[600] : colorScheme.primary,
+                        size: 24,
+                      ),
+                    ),
+                    title: Text(
+                      notification.message,
+                      style: textTheme.bodyLarge?.copyWith(
+                        fontWeight:
+                            isRead ? FontWeight.normal : FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      "From: ${notification.sender.username} • ${notification.type.replaceAll('_', ' ')}",
+                      style: textTheme.bodySmall?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    onTap: () {
+                      
+                    },
                   ),
-                  subtitle: Text(
-                    "From: ${notification.sender.username} • ${notification.type.replaceAll('_', ' ')}",
-                  ),
-                  onTap: () {
-                    // TODO: Implement navigation to the notification's link, e.g.:
-                    // if (notification.link != null) {
-                    //   Navigator.pushNamed(context, notification.link!);
-                    // }
-                    // TODO: Or implement a "mark as read" feature, e.g.:
-                    // viewModel.markAsRead(notification.id);
-                  },
                 );
               },
             ),

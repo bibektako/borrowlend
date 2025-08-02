@@ -1,4 +1,4 @@
-import 'package:borrowlend/features/notification/domain/entity/notification_user_entiry.dart';
+import 'package:borrowlend/features/notification/domain/entity/notification_user_entity.dart';
 import 'package:equatable/equatable.dart';
 
 class NotificationEntity extends Equatable {

@@ -17,6 +17,9 @@ class AddItemView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ImagePicker picker = ImagePicker();
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
     return BlocListener<ItemViewModel, ItemState>(
       listenWhen: (p, c) => p.formStatus != c.formStatus,
@@ -44,7 +47,7 @@ class AddItemView extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(title: const Text('Add New Item')),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(20),
           child: BlocBuilder<ItemViewModel, ItemState>(
             builder: (context, state) {
               final isLoading = state.formStatus == FormStatus.loading;
@@ -52,12 +55,13 @@ class AddItemView extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // --- Image Upload Section ---
                   GestureDetector(
                     onTap: () async {
                       final file = await picker.pickImage(
                         source: ImageSource.gallery,
                         imageQuality: 80,
-                      ); // Force JPEG conversion
+                      );
                       if (file != null) {
                         context.read<ItemViewModel>().add(
                           FormFieldChanged(imagePaths: [file.path]),
@@ -67,8 +71,9 @@ class AddItemView extends StatelessWidget {
                     child: Container(
                       height: 180,
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
+                        color: theme.colorScheme.surface,
                         borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.grey.shade300),
                       ),
                       child:
                           state.imagePaths.isNotEmpty
@@ -77,20 +82,33 @@ class AddItemView extends StatelessWidget {
                                 child: Image.file(
                                   File(state.imagePaths.first),
                                   fit: BoxFit.cover,
+                                  width: double.infinity,
                                 ),
                               )
-                              : const Center(
-                                child: Icon(
-                                  Icons.add_a_photo_outlined,
-                                  size: 40,
-                                  color: Colors.grey,
+                              : Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: 36,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      "Tap to upload image",
+                                      style: textTheme.bodyMedium?.copyWith(
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                     ),
                   ),
                   const SizedBox(height: 24),
 
-                  // --- Form Fields ---
+                  // --- Item Name ---
                   TextFormField(
                     initialValue: state.name,
                     decoration: const InputDecoration(
@@ -103,6 +121,8 @@ class AddItemView extends StatelessWidget {
                         ),
                   ),
                   const SizedBox(height: 16),
+
+                  // --- Description ---
                   TextFormField(
                     initialValue: state.description,
                     decoration: const InputDecoration(
@@ -116,10 +136,12 @@ class AddItemView extends StatelessWidget {
                     maxLines: 4,
                   ),
                   const SizedBox(height: 16),
+
+                  // --- Price ---
                   TextFormField(
                     initialValue: state.price,
                     decoration: const InputDecoration(
-                      labelText: 'Borrowing Price',
+                      labelText: 'Borrowing Price (Rs/day)',
                       border: OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
@@ -130,6 +152,7 @@ class AddItemView extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
 
+                  // --- Category Dropdown ---
                   BlocBuilder<CategoryBloc, CategoryState>(
                     builder: (context, categoryState) {
                       if (categoryState is CategorySuccess) {
@@ -164,19 +187,20 @@ class AddItemView extends StatelessWidget {
                               );
                             }
                           },
-                          validator: (value) {
-                            if (value == null) {
-                              return 'Please select a category';
-                            }
-                            return null;
-                          },
+                          validator:
+                              (value) =>
+                                  value == null
+                                      ? 'Please select a category'
+                                      : null,
                         );
                       }
                       return const Text('Loading categories...');
                     },
                   ),
+
                   const SizedBox(height: 32),
 
+                  // --- Submit Button ---
                   ElevatedButton(
                     onPressed:
                         isLoading
@@ -189,7 +213,9 @@ class AddItemView extends StatelessWidget {
                     ),
                     child:
                         isLoading
-                            ? const CircularProgressIndicator()
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
                             : const Text('List My Item'),
                   ),
                 ],

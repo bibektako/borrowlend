@@ -197,6 +197,7 @@ Future<void> _initAuthModule() async {
 }
 
 Future<void> _initHomeModule() async {
+  
   serviceLocator.registerFactory(
     () => CategoryRemoteDataSource(apiService: serviceLocator<ApiService>()),
   );

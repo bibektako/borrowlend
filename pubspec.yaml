@@ -58,8 +58,9 @@ dependencies:
   hydrated_bloc: ^10.1.1
   light: ^4.1.0
   http: ^1.4.0
-  flutter_secure_storage: ^4.2.1
+  flutter_secure_storage: ^9.2.4
   socket_io_client: ^3.1.2
+  sensors_plus: ^6.1.1
 
 dev_dependencies:
   flutter_test:

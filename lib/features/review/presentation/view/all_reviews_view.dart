@@ -1,12 +1,12 @@
-import 'package:borrowlend/features/auth/presentation/view_model/login_view_model/login_view_model.dart';
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/session/auth_status.dart';
 import 'package:borrowlend/features/auth/presentation/view_model/session/session_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:borrowlend/features/review/domain/entity/review_entity.dart';
 import 'package:borrowlend/features/review/presentation/view_model/review_event.dart';
 import 'package:borrowlend/features/review/presentation/view_model/review_state.dart';
 import 'package:borrowlend/features/review/presentation/view_model/review_view_model.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AllReviewsView extends StatefulWidget {
   final String itemId;
@@ -34,15 +34,18 @@ class _AllReviewsViewState extends State<AllReviewsView> {
     final formKey = GlobalKey<FormState>();
 
     showModalBottomSheet(
-      context: context, // The original context from the main page
+      context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (ctx) {
-        // `ctx` is the NEW context for the modal sheet
         return BlocProvider.value(
           value: context.read<ReviewViewModel>(),
           child: Padding(
             padding: EdgeInsets.only(
-              bottom: MediaQuery.of(ctx).viewInsets.bottom,
+              bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
               top: 20,
               left: 20,
               right: 20,
@@ -59,20 +62,44 @@ class _AllReviewsViewState extends State<AllReviewsView> {
                     style: Theme.of(ctx).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: ratingController,
-                    decoration: const InputDecoration(
-                      labelText: 'Rating (1-5)',
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Rating is required.';
-                      final rating = double.tryParse(value);
-                      if (rating == null || rating < 1 || rating > 5) {
-                        return 'Please enter a number between 1 and 5.';
-                      }
-                      return null;
+                  StatefulBuilder(
+                    builder: (ctx, setModalState) {
+                      double selectedRating =
+                          double.tryParse(ratingController.text) ?? 5.0;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Rating:',
+                            style: Theme.of(ctx).textTheme.labelLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: List.generate(5, (index) {
+                              return IconButton(
+                                onPressed: () {
+                                  setModalState(() {
+                                    selectedRating = index + 1.0;
+                                    ratingController.text =
+                                        selectedRating.toString();
+                                  });
+                                },
+                                icon: Icon(
+                                  index < selectedRating
+                                      ? Icons.star_rounded
+                                      : Icons.star_border_rounded,
+                                  color: Colors.amber,
+                                  size: 30,
+                                ),
+                                splashRadius: 20,
+                              );
+                            }),
+                          ),
+                        ],
+                      );
                     },
                   ),
                   const SizedBox(height: 16),
@@ -80,20 +107,19 @@ class _AllReviewsViewState extends State<AllReviewsView> {
                     controller: commentController,
                     decoration: const InputDecoration(labelText: 'Comment'),
                     maxLines: 3,
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return 'Comment cannot be empty.';
-                      return null;
-                    },
+                    validator:
+                        (value) =>
+                            (value == null || value.isEmpty)
+                                ? 'Comment cannot be empty.'
+                                : null,
                   ),
                   const SizedBox(height: 20),
                   BlocBuilder<ReviewViewModel, ReviewState>(
                     builder: (context, state) {
-                      final bool isActionInProgress =
-                          state is ReviewActionInProgress;
+                      final isLoading = state is ReviewActionInProgress;
                       return ElevatedButton(
                         onPressed:
-                            isActionInProgress
+                            isLoading
                                 ? null
                                 : () {
                                   if (formKey.currentState!.validate()) {
@@ -130,7 +156,6 @@ class _AllReviewsViewState extends State<AllReviewsView> {
                       );
                     },
                   ),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
@@ -140,34 +165,63 @@ class _AllReviewsViewState extends State<AllReviewsView> {
     );
   }
 
+  void _confirmDeleteReview(BuildContext context, String reviewId) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: const Text('Delete Review'),
+            content: const Text('Are you sure you want to delete this review?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(ctx);
+                  context.read<ReviewViewModel>().add(
+                    ReviewDeleted(reviewId: reviewId),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: const Text('Delete'),
+              ),
+            ],
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    String? currentUserId;
     final sessionState = context.watch<SessionCubit>().state;
-    if (sessionState.status == AuthStatus.authenticated) {
-      currentUserId = sessionState.user?.userId;
-    }
+    final currentUserId =
+        sessionState.status == AuthStatus.authenticated
+            ? sessionState.user?.userId
+            : null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Reviews'), centerTitle: true),
       body: BlocConsumer<ReviewViewModel, ReviewState>(
         listener: (context, state) {
           if (state is ReviewSuccess && state.successMessage != null) {
-            final bool isError = state.successMessage!.toLowerCase().startsWith(
-              'error:',
-            );
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.successMessage!),
-                backgroundColor: isError ? Colors.red : Colors.green,
-              ),
+            final msg = state.successMessage!;
+            final isError = msg.toLowerCase().startsWith('error:');
+            showMySnackBar(
+              context: context,
+              message: msg,
+              type: isError ? SnackBarType.error : SnackBarType.success,
             );
           } else if (state is ReviewFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
+            showMySnackBar(
+              context: context,
+              message: state.message,
+              type: SnackBarType.error,
             );
           }
         },
@@ -175,31 +229,11 @@ class _AllReviewsViewState extends State<AllReviewsView> {
           if (state is ReviewInitial || state is ReviewLoading) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is ReviewFailure) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Failed to load reviews: ${state.message}'),
-                  const SizedBox(height: 8),
-                  ElevatedButton(
-                    onPressed:
-                        () => context.read<ReviewViewModel>().add(
-                          ReviewsFetched(itemId: widget.itemId),
-                        ),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
 
-          // At this point, the state must be ReviewSuccess or ReviewActionInProgress,
-          // both of which contain a list of reviews.
           final reviews = switch (state) {
             ReviewSuccess(reviews: final r) => r,
             ReviewActionInProgress(reviews: final r) => r,
-            _ => <ReviewEntity>[], // Should not happen due to the checks above
+            _ => <ReviewEntity>[],
           };
 
           if (reviews.isEmpty) {
@@ -207,63 +241,78 @@ class _AllReviewsViewState extends State<AllReviewsView> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(12),
             itemCount: reviews.length,
             itemBuilder: (context, index) {
               final review = reviews[index];
-              print("current: $currentUserId");
-              print("review: ${review.user.id}");
-              final isCurrentUserReview = review.user.id == currentUserId;
+              final isCurrentUser = review.user.id == currentUserId;
+
               return Card(
-                margin: const EdgeInsets.symmetric(vertical: 8.0),
+                margin: const EdgeInsets.only(bottom: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
                 child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
                   title: Text(
                     review.user.username,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleMedium,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: List.generate(5, (starIndex) {
-                          return Icon(
-                            starIndex < review.rating
-                                ? Icons.star
-                                : Icons.star_border,
-                            color: Colors.amber,
-                            size: 16,
-                          );
-                        }),
-                      ),
                       const SizedBox(height: 4),
+                      Row(
+                        children: List.generate(
+                          5,
+                          (i) => Icon(
+                            i < review.rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 18,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
                       Text(review.comment),
                     ],
                   ),
                   trailing:
-                      isCurrentUserReview
-                          ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.edit,
-                                  color: Colors.blue,
-                                ),
-                                onPressed:
-                                    () => _showReviewForm(reviewToEdit: review),
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                ),
-                                onPressed: () {
-                                  context.read<ReviewViewModel>().add(
-                                    ReviewDeleted(reviewId: review.id!),
-                                  );
-                                },
-                              ),
-                            ],
+                      isCurrentUser
+                          ? PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showReviewForm(reviewToEdit: review);
+                              } else if (value == 'delete') {
+                                _confirmDeleteReview(context, review.id!);
+                              }
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            itemBuilder:
+                                (context) => [
+                                  const PopupMenuItem(
+                                    value: 'edit',
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.edit,
+                                        color: Colors.blue,
+                                      ),
+                                      title: Text('Edit'),
+                                    ),
+                                  ),
+                                  const PopupMenuItem(
+                                    value: 'delete',
+                                    child: ListTile(
+                                      leading: Icon(
+                                        Icons.delete,
+                                        color: Colors.red,
+                                      ),
+                                      title: Text('Delete'),
+                                    ),
+                                  ),
+                                ],
                           )
                           : null,
                 ),
@@ -284,9 +333,9 @@ class _AllReviewsViewState extends State<AllReviewsView> {
                 state is ReviewActionInProgress
                     ? const CircularProgressIndicator(
                       color: Colors.white,
-                      strokeWidth: 2.0,
+                      strokeWidth: 2.5,
                     )
-                    : const Icon(Icons.add_comment),
+                    : const Icon(Icons.add_comment_rounded),
           );
         },
       ),

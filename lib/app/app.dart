@@ -50,6 +50,8 @@ class AppView extends StatelessWidget {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, themeState) {
         return MaterialApp(
+        
+
           debugShowCheckedModeBanner: false,
           
           // Apply the light, dark, and current theme mode from the ThemeCubit's state.

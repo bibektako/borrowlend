@@ -1,3 +1,5 @@
+import 'package:borrowlend/core/config/theme/theme_cubit.dart';
+import 'package:borrowlend/core/config/theme/theme_sensor_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:borrowlend/features/splash/presentation/view_model/splashscreen_view_model.dart';
@@ -11,6 +13,7 @@ class SplashscreenView extends StatelessWidget {
     // This safely calls the init method after the first frame is rendered.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<SplashscreenViewModel>().init(context);
+      ThemeSensorController(context.read<ThemeCubit>()).init();
     });
 
     return Scaffold(

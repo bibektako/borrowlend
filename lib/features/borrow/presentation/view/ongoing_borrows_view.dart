@@ -1,3 +1,4 @@
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_event.dart';
@@ -11,100 +12,186 @@ class OngoingBorrowPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+
     Future.microtask(() {
-      debugPrint("📤 Dispatching FetchBorrowRequests from OngoingBorrowPage");
       context.read<BorrowedItemsBloc>().add(FetchBorrowRequests());
     });
 
     return Scaffold(
       appBar: AppBar(title: const Text("My Borrowed Items")),
-      body: BlocBuilder<BorrowedItemsBloc, BorrowedItemsState>(
+      body: BlocConsumer<BorrowedItemsBloc, BorrowedItemsState>(
+        listener: (context, state) {
+          if (state is BorrowActionSuccess) {
+            showMySnackBar(
+              context: context,
+              message: state.message,
+              type: SnackBarType.success,
+            );
+          } else if (state is BorrowedItemsError) {
+            showMySnackBar(
+              context: context,
+              message: state.message,
+              type: SnackBarType.error,
+            );
+          }
+        },
         builder: (context, state) {
           if (state is BorrowedItemsLoading) {
-            debugPrint("🔄 State: Loading Borrow Requests...");
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is BorrowedItemsError) {
-            debugPrint("❌ Error State: ${state.message}");
-            return Center(child: Text(state.message));
-          }
-
           if (state is BorrowedItemsLoaded) {
-            debugPrint("✅ BorrowRequests Loaded: ${state.requests.length}");
-
-            final ongoing = state.requests.where((r) {
-              final isBorrower = r.borrower.id == currentUserId;
-              final isOngoing = ['pending', 'approved', 'requested']
-      .contains(r.status.toLowerCase());
-
-              debugPrint(
-                  "🔍 Borrow Check - requestId=${r.id}, borrowerMatch=$isBorrower, statusMatch=$isOngoing");
-
-              return isBorrower && isOngoing;
-            }).toList();
-
-            debugPrint("📦 Total ongoing borrows (after filter): ${ongoing.length}");
+            final ongoing =
+                state.requests.where((r) {
+                  final isBorrower = r.borrower.id == currentUserId;
+                  final isOngoing = [
+                    'pending',
+                    'approved',
+                    'requested',
+                  ].contains(r.status.toLowerCase());
+                  return isBorrower && isOngoing;
+                }).toList();
 
             if (ongoing.isEmpty) {
-              return const Center(child: Text("No ongoing borrows."));
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.hourglass_empty_rounded,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No ongoing borrows.",
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             }
 
-            return ListView.builder(
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
               itemCount: ongoing.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final request = ongoing[index];
 
-                return Card(
-                  margin: const EdgeInsets.all(12),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                return Container(
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          request.item.name,
-                          style: const TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        request.item.name,
+                        style: textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 8),
-                        Text("Status: ${request.status}"),
-                        const SizedBox(height: 12),
-                        if (request.status == 'requested' || request.status == 'pending')
-                          const Text(
-                            "⏳ Waiting for approval...",
-                            style: TextStyle(color: Colors.orange),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.info_outline, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            "Status: ${request.status.toUpperCase()}",
+                            style: textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: theme.colorScheme.primary,
+                            ),
                           ),
-                        if (request.status == 'approved') ...[
-                          ElevatedButton(
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Payment gateway coming soon."),
-                                ),
-                              );
-                            },
-                            child: const Text("Pay Now"),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      if ([
+                        'requested',
+                        'pending',
+                      ].contains(request.status)) ...[
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.timer_outlined,
+                              size: 20,
+                              color: Colors.orange,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              "Waiting for approval...",
+                              style: textTheme.bodyMedium?.copyWith(
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ] else if (request.status == 'approved') ...[
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.payment),
+                          label: const Text("Pay Now"),
+                          onPressed: () {
+                            showMySnackBar(
+                              context: context,
+                              message: "Payment gateway coming soon.",
+                              type: SnackBarType.info,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: theme.colorScheme.primary,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                          const SizedBox(height: 10),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red),
-                            onPressed: () {
-                              context.read<BorrowedItemsBloc>().add(
-                                    UpdateBorrowRequestStatus(
-                                        request.id!, 'returned'),
-                                  );
-                            },
-                            child: const Text("Return Item"),
+                        ),
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.undo),
+                          label: const Text("Return Item"),
+                          onPressed: () {
+                            context.read<BorrowedItemsBloc>().add(
+                              UpdateBorrowRequestStatus(
+                                request.id!,
+                                'returned',
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red.shade600,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
-                        ]
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 );
               },

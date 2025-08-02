@@ -1,3 +1,4 @@
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_event.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_state.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
@@ -14,68 +15,85 @@ class BorrowRequestsPage extends StatefulWidget {
 }
 
 class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
-  static const String _baseImageUrl =
-      "http://localhost:5050/"; // 👈 Change to IP if testing on device
+  static const String _baseImageUrl = "http://localhost:5050/";
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      debugPrint("🔄 Dispatching FetchBorrowRequests");
       context.read<BorrowedItemsBloc>().add(FetchBorrowRequests());
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("👤 currentUserId: ${widget.currentUserId}");
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
 
     return Scaffold(
       appBar: AppBar(title: const Text("Borrow Requests")),
-      body: BlocBuilder<BorrowedItemsBloc, BorrowedItemsState>(
+      body: BlocConsumer<BorrowedItemsBloc, BorrowedItemsState>(
+        listener: (context, state) {
+          if (state is BorrowActionSuccess) {
+            showMySnackBar(
+              context: context,
+              message: state.message,
+              type: SnackBarType.success,
+            );
+          } else if (state is BorrowedItemsError) {
+            showMySnackBar(
+              context: context,
+              message: state.message,
+              type: SnackBarType.error,
+            );
+          }
+        },
         builder: (context, state) {
           if (state is BorrowedItemsLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          if (state is BorrowedItemsError) {
-            debugPrint("❌ Error loading borrow requests: ${state.message}");
-            return Center(child: Text(state.message));
-          }
-
           if (state is BorrowedItemsLoaded) {
-            debugPrint(
-              "✅ Loaded ${state.requests.length} total borrow requests",
-            );
-
-            for (var req in state.requests) {
-              debugPrint("📦 Borrow Request:");
-              debugPrint("   ▶ requestId: ${req.id}");
-              debugPrint("   ▶ item: ${req.item.name}");
-              debugPrint("   ▶ ownerId: ${req.owner.id}");
-              debugPrint("   ▶ borrower: ${req.borrower.username}");
-              debugPrint("   ▶ status: ${req.status}");
-            }
-
             final filtered =
                 state.requests.where((r) {
                   final amIOwner = r.owner.id == widget.currentUserId;
-                  final isOngoing = [
+                  final isPending = [
                     'pending',
                     'approved',
                     'requested',
                   ].contains(r.status.toLowerCase());
-                  return amIOwner && isOngoing;
+                  return amIOwner && isPending;
                 }).toList();
 
-            debugPrint("📥 Total filtered requests: ${filtered.length}");
-
             if (filtered.isEmpty) {
-              return const Center(child: Text("No pending requests."));
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.inbox_outlined,
+                        size: 60,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        "No pending borrow requests.",
+                        style: textTheme.bodyLarge?.copyWith(
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             }
 
-            return ListView.builder(
+            return ListView.separated(
+              padding: const EdgeInsets.all(16),
               itemCount: filtered.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 16),
               itemBuilder: (context, index) {
                 final request = filtered[index];
                 final item = request.item;
@@ -84,11 +102,19 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                         ? _baseImageUrl + item.imageUrls.first
                         : null;
 
-                return Card(
-                  margin: const EdgeInsets.all(12),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                final isApproved = request.status.toLowerCase() == 'approved';
+
+                return Container(
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -97,65 +123,141 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                       children: [
                         if (imageUrl != null)
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.circular(12),
                             child: Image.network(
                               imageUrl,
                               height: 180,
                               width: double.infinity,
                               fit: BoxFit.cover,
                               errorBuilder:
-                                  (_, __, ___) =>
-                                      const Text("⚠️ Failed to load image"),
+                                  (_, __, ___) => Container(
+                                    height: 180,
+                                    color: Colors.grey.shade200,
+                                    alignment: Alignment.center,
+                                    child: const Text(
+                                      "⚠️ Unable to load image",
+                                    ),
+                                  ),
                             ),
                           ),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                         Text(
                           item.name,
-                          style: const TextStyle(
-                            fontSize: 20,
+                          style: textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 6),
                         Text(
                           "Requested by: ${request.borrower.username}",
-                          style: const TextStyle(fontSize: 16),
+                          style: textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: 20),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.check),
-                              label: const Text("Approve"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                              ),
-                              onPressed: () {
-                                context.read<BorrowedItemsBloc>().add(
-                                  UpdateBorrowRequestStatus(
-                                    request.id ?? '',
-                                    'approved',
+                            if (isApproved)
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.undo),
+                                label: const Text("Cancel Approval"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.orange.shade700,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
                                   ),
-                                );
-                              },
-                            ),
-                            const SizedBox(width: 10),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.close),
-                              label: const Text("Deny"),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                              ),
-                              onPressed: () {
-                                context.read<BorrowedItemsBloc>().add(
-                                  UpdateBorrowRequestStatus(
-                                    request.id ?? '',
-                                    'denied',
+                                  textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                );
-                              },
-                            ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  context.read<BorrowedItemsBloc>().add(
+                                    UpdateBorrowRequestStatus(
+                                      request.id ?? '',
+                                      'pending',
+                                    ),
+                                  );
+                                  showMySnackBar(
+                                    context: context,
+                                    message:
+                                        "Approval cancelled for '${item.name}'",
+                                    type: SnackBarType.success,
+                                  );
+                                },
+                              )
+                            else ...[
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.check_circle_outline),
+                                label: const Text("Approve"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  context.read<BorrowedItemsBloc>().add(
+                                    UpdateBorrowRequestStatus(
+                                      request.id ?? '',
+                                      'approved',
+                                    ),
+                                  );
+                                  showMySnackBar(
+                                    context: context,
+                                    message:
+                                        "Approved request for '${item.name}'",
+                                    type: SnackBarType.success,
+                                  );
+                                },
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.cancel_outlined),
+                                label: const Text("Deny"),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red.shade600,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 12,
+                                  ),
+                                  textStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  context.read<BorrowedItemsBloc>().add(
+                                    UpdateBorrowRequestStatus(
+                                      request.id ?? '',
+                                      'denied',
+                                    ),
+                                  );
+                                  showMySnackBar(
+                                    context: context,
+                                    message:
+                                        "Denied request for '${item.name}'",
+                                    type: SnackBarType.success,
+                                  );
+                                },
+                              ),
+                            ],
                           ],
                         ),
                       ],
@@ -164,6 +266,10 @@ class _BorrowRequestsPageState extends State<BorrowRequestsPage> {
                 );
               },
             );
+          }
+
+          if (state is BorrowedItemsError) {
+            return Center(child: Text(state.message));
           }
 
           return const SizedBox();

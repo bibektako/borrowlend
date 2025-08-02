@@ -115,36 +115,54 @@ class _ProfileViewBody extends StatelessWidget {
 
   Widget _buildProfileHeader(BuildContext context, UserProfileEntity? user) {
     final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 35,
-            backgroundColor: theme.colorScheme.secondaryContainer,
-
-            child: Icon(
-              Icons.person,
-              size: 35,
-              color: theme.colorScheme.onSecondaryContainer,
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
             ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user?.username ?? "Loading...",
-                  style: theme.textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(user?.email ?? "", style: theme.textTheme.bodyMedium),
-              ],
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 35,
+              backgroundColor: colorScheme.primary.withOpacity(0.1),
+              child: const Icon(Icons.person, size: 36, color: Colors.black54),
             ),
-          ),
-        ],
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user?.username ?? "Loading...",
+                    style: textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user?.email ?? "",
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -207,18 +225,7 @@ class _ProfileViewBody extends StatelessWidget {
             }
           },
         ),
-        _ProfileMenuItem(
-          icon: Icons.notifications_outlined,
-          title: "Notifications",
-          onTap: () {
-            viewModel.add(
-              NavigateToProfilePage(
-                context: context,
-                destination: const NotificationsView(),
-              ),
-            );
-          },
-        ),
+
         _ProfileMenuItem(
           icon: Icons.history_outlined,
           title: "Borrowing History",
@@ -226,7 +233,6 @@ class _ProfileViewBody extends StatelessWidget {
             final userId =
                 context.read<ProfileViewModel>().state.userProfile?.id;
             if (userId != null) {
-              // Use the existing navigation event, just point to the new page
               viewModel.add(
                 NavigateToProfilePage(
                   context: context,
@@ -288,26 +294,45 @@ class _ProfileMenuItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(
-        horizontal: 24.0,
-        vertical: 4.0,
-      ),
-      leading: Icon(icon, color: textColor ?? Colors.black87, size: 26),
-      title: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w500,
-          color: textColor,
+    final theme = Theme.of(context);
+    final bgColor = theme.cardColor;
+    final iconColor = textColor ?? theme.iconTheme.color;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Material(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(14),
+        elevation: 1,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            child: Row(
+              children: [
+                Icon(icon, color: iconColor, size: 24),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: textColor ?? theme.textTheme.bodyLarge?.color,
+                    ),
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
-      trailing: Icon(
-        Icons.arrow_forward_ios,
-        size: 16,
-        color: Colors.grey.shade400,
-      ),
-      onTap: onTap,
     );
   }
 }

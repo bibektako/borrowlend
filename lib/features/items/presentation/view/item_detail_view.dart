@@ -1,8 +1,8 @@
 import 'package:borrowlend/app/constant/api_endpoints.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
-import 'package:borrowlend/features/borrow/presentation/view/borrow_button.dart';
+import 'package:borrowlend/core/common/snackbar/my_snackbar.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_event.dart';
-import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_state.dart'; // <-- Import state file
+import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_state.dart';
 import 'package:borrowlend/features/borrow/presentation/view_model/borrow_items_view_model.dart';
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_event.dart';
@@ -19,11 +19,10 @@ class ItemDetailView extends StatefulWidget {
   const ItemDetailView({Key? key, required this.item}) : super(key: key);
 
   @override
-  _ItemDetailViewState createState() => _ItemDetailViewState();
+  State<ItemDetailView> createState() => _ItemDetailViewState();
 }
 
 class _ItemDetailViewState extends State<ItemDetailView> {
-  // ... (initState and dispose methods are unchanged)
   final PageController _pageController = PageController();
   int _currentPage = 0;
 
@@ -48,16 +47,14 @@ class _ItemDetailViewState extends State<ItemDetailView> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+
     return MultiBlocProvider(
       providers: [
-        BlocProvider<ReviewViewModel>(
-          create: (context) => serviceLocator<ReviewViewModel>(),
-        ),
-        // Ensure BorrowedItemsBloc is provided if not already available higher up
-        // If it's already provided by a parent widget, you can remove this.
-        BlocProvider<BorrowedItemsBloc>(
-          create: (context) => serviceLocator<BorrowedItemsBloc>(),
-        ),
+        BlocProvider(create: (_) => serviceLocator<ReviewViewModel>()),
+        BlocProvider(create: (_) => serviceLocator<BorrowedItemsBloc>()),
       ],
       child: BlocBuilder<ItemViewModel, ItemState>(
         builder: (context, state) {
@@ -67,103 +64,123 @@ class _ItemDetailViewState extends State<ItemDetailView> {
           );
 
           return Scaffold(
-            backgroundColor: Colors.white,
+            backgroundColor: colorScheme.background,
             body: SafeArea(
-              child: CustomScrollView(
-                slivers: [
-                  _buildSliverAppBar(context, currentItem),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        const SizedBox(height: 16),
-                        _buildImageCarousel(),
-                        const SizedBox(height: 8),
-                        if (widget.item.imageUrls.length > 1) ...[
-                          _buildImageIndicator(),
-                          const SizedBox(height: 24),
-                        ] else ...[
-                          const SizedBox(height: 16),
-                        ],
-                        _buildTitleAndPrice(),
-                        const SizedBox(height: 24),
-                        const Text(
-                          "Description",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: Color(0xFF333333),
-                          ),
+              child: Stack(
+                children: [
+                  CustomScrollView(
+                    slivers: [
+                      _buildSliverAppBar(context, currentItem),
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate([
+                            const SizedBox(height: 16),
+                            _buildImageCarousel(),
+                            const SizedBox(height: 8),
+                            if (widget.item.imageUrls.length > 1) ...[
+                              _buildImageIndicator(),
+                              const SizedBox(height: 24),
+                            ],
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    widget.item.name,
+                                    style: textTheme.titleLarge?.copyWith(
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  'Rs ${widget.item.borrowingPrice.toStringAsFixed(2)}/Day',
+                                  style: textTheme.titleLarge?.copyWith(
+                                    fontSize: 22,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              "Description",
+                              style: textTheme.titleLarge?.copyWith(
+                                fontSize: 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              widget.item.description,
+                              style: textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 24),
+                            _buildOwnerInfoWithTheme(context),
+                            const SizedBox(height: 24),
+                            ReviewSection(
+                              itemId: widget.item.id!,
+                              averageRating: widget.item.rating ?? 0.0,
+                            ),
+                            const SizedBox(height: 24),
+                          ]),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          widget.item.description,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.grey[700],
-                            height: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildOwnerInfo(),
-                        const SizedBox(height: 24),
-                        ReviewSection(
-                          itemId: widget.item.id!,
-                          averageRating: widget.item.rating ?? 0.0,
-                        ),
-                        const SizedBox(height: 40),
+                      ),
+                    ],
+                  ),
 
-                        // --- THIS IS THE FIX ---
-                        // Wrap the BorrowButton with a BlocListener to handle feedback.
-                        BlocListener<BorrowedItemsBloc, BorrowedItemsState>(
-                          listener: (context, borrowState) {
-                            if (borrowState is BorrowActionSuccess) {
-                              // Show GREEN snackbar on success
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(borrowState.message),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                              // Pop the screen after success
-                              Navigator.pop(context);
-                            } else if (borrowState is BorrowedItemsError) {
-                              // Show RED snackbar on error
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(borrowState.message),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          },
-                          child: BlocBuilder<
-                            BorrowedItemsBloc,
-                            BorrowedItemsState
-                          >(
-                            builder: (context, borrowState) {
-                              // Disable the button while an action is in progress
-                              final bool isLoading =
-                                  borrowState is BorrowedItemsLoading;
-                              return BorrowButton(
-                                onPressed:
-                                    isLoading
-                                        ? () {} // Do nothing if loading
-                                        : () {
-                                          // The onPressed callback NOW ONLY dispatches the event.
-                                          // The BlocListener will handle the UI feedback.
-                                          context.read<BorrowedItemsBloc>().add(
-                                            CreateBorrowRequest(
-                                              widget.item.id!,
-                                            ),
-                                          );
-                                        },
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                      ]),
+                  // --- Borrow Button (Themed + Snackbar) ---
+                  Positioned(
+                    bottom: 20,
+                    left: 20,
+                    right: 20,
+                    child: BlocListener<BorrowedItemsBloc, BorrowedItemsState>(
+                      listener: (context, state) {
+                        if (state is BorrowActionSuccess) {
+                          showMySnackBar(
+                            context: context,
+                            message: state.message,
+                            type: SnackBarType.success,
+                          );
+                          Navigator.pop(context);
+                        } else if (state is BorrowedItemsError) {
+                          showMySnackBar(
+                            context: context,
+                            message: state.message,
+                            type: SnackBarType.error,
+                          );
+                        }
+                      },
+                      child: BlocBuilder<BorrowedItemsBloc, BorrowedItemsState>(
+                        builder: (context, state) {
+                          final isLoading = state is BorrowedItemsLoading;
+                          return ElevatedButton(
+                            onPressed:
+                                isLoading
+                                    ? null
+                                    : () {
+                                      context.read<BorrowedItemsBloc>().add(
+                                        CreateBorrowRequest(widget.item.id!),
+                                      );
+                                    },
+                            style: ElevatedButton.styleFrom(
+                              minimumSize: const Size.fromHeight(50),
+                            ),
+                            child:
+                                isLoading
+                                    ? const SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                    : const Text("Borrow Now"),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -179,22 +196,22 @@ class _ItemDetailViewState extends State<ItemDetailView> {
     BuildContext context,
     ItemEntity currentItem,
   ) {
+    final theme = Theme.of(context);
+    final color = theme.appBarTheme.iconTheme?.color ?? Colors.black;
+
     return SliverAppBar(
       pinned: true,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.appBarTheme.backgroundColor,
       elevation: 0,
       leading: Padding(
         padding: const EdgeInsets.only(left: 12.0),
         child: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back, color: color),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       centerTitle: true,
-      title: const Text(
-        "Details",
-        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-      ),
+      title: Text("Details", style: theme.appBarTheme.titleTextStyle),
       actions: [
         Padding(
           padding: const EdgeInsets.only(right: 12.0),
@@ -204,10 +221,9 @@ class _ItemDetailViewState extends State<ItemDetailView> {
                   ? Icons.bookmark
                   : Icons.bookmark_border_outlined,
               color:
-                  currentItem.isBookmarked ? Colors.blueAccent : Colors.black,
+                  currentItem.isBookmarked ? theme.colorScheme.primary : color,
             ),
             onPressed: () {
-              // 6. DISPATCH THE EVENT to the ItemViewModel.
               context.read<ItemViewModel>().add(
                 ToggleBookmarkEvent(
                   itemId: currentItem.id!,
@@ -255,14 +271,14 @@ class _ItemDetailViewState extends State<ItemDetailView> {
               imageUrl,
               fit: BoxFit.cover,
               errorBuilder:
-                  (context, error, stackTrace) => Icon(
+                  (_, __, ___) => Icon(
                     Icons.broken_image_outlined,
                     color: Colors.grey[400],
                     size: 80,
                   ),
               loadingBuilder:
-                  (context, child, progress) =>
-                      progress == null
+                  (context, child, loading) =>
+                      loading == null
                           ? child
                           : const Center(child: CircularProgressIndicator()),
             );
@@ -284,7 +300,7 @@ class _ItemDetailViewState extends State<ItemDetailView> {
           decoration: BoxDecoration(
             color:
                 _currentPage == index
-                    ? Colors.blueAccent
+                    ? Theme.of(context).colorScheme.primary
                     : Colors.grey.shade300,
             borderRadius: BorderRadius.circular(12),
           ),
@@ -293,45 +309,22 @@ class _ItemDetailViewState extends State<ItemDetailView> {
     );
   }
 
-  Widget _buildTitleAndPrice() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Text(
-            widget.item.name,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
-          ),
-        ),
-        const SizedBox(width: 16),
-        Text(
-          '\Rs${widget.item.borrowingPrice.toStringAsFixed(2)}',
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 28,
-            color: Color(0xFF111827),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget _buildOwnerInfoWithTheme(BuildContext context) {
+    final theme = Theme.of(context);
+    final textTheme = theme.textTheme;
+    final colorScheme = theme.colorScheme;
 
-  Widget _buildOwnerInfo() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF9FAFB),
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey[200]!),
+        border: Border.all(color: Colors.grey.shade300),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Listed by",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
+          Text("Listed by", style: textTheme.titleLarge),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -347,30 +340,32 @@ class _ItemDetailViewState extends State<ItemDetailView> {
                   children: [
                     Text(
                       widget.item.owner?.username ?? 'N/A',
-                      style: const TextStyle(
+                      style: textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
                       ),
                     ),
-                    if (widget.item.owner?.location != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        widget.item.owner!.location!,
-                        style: TextStyle(color: Colors.grey[600]),
+                    if (widget.item.owner?.location != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          widget.item.owner!.location!,
+                          style: textTheme.bodyMedium,
+                        ),
                       ),
-                    ],
                   ],
                 ),
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.call_outlined, color: Colors.blue),
+                icon: const Icon(Icons.call_outlined),
                 tooltip: 'Call Owner',
+                color: colorScheme.primary,
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.message_outlined, color: Colors.green),
+                icon: const Icon(Icons.message_outlined),
                 tooltip: 'Message Owner',
+                color: colorScheme.secondary,
               ),
             ],
           ),

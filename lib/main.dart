@@ -1,6 +1,7 @@
 import 'package:borrowlend/app/app.dart';
 import 'package:borrowlend/app/service_locator/service_locator.dart';
 import 'package:borrowlend/app/shared_pref/token_shared_prefs.dart';
+import 'package:borrowlend/core/common/shake_detector_wrapper.dart';
 import 'package:borrowlend/core/network/hive_service.dart';
 import 'package:borrowlend/features/auth/data/model/user_hive_model.dart';
 import 'package:flutter/foundation.dart';
@@ -8,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:path_provider/path_provider.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,6 +33,13 @@ void main() async {
   // final tokenSharedPref = serviceLocator<TokenSharedPrefs>();
   // final token = await tokenSharedPref.getToken();
   // debugPrint("Shared Pref Token: $token");
+  
 
   runApp(const App());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final context = navigatorKey.currentContext;
+    if (context != null) {
+      GlobalShakeDetector().start(context);
+    }
+  });
 }
