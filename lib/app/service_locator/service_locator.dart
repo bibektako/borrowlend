@@ -38,6 +38,14 @@ import 'package:borrowlend/features/items/domain/use_case/get_all_items_usecase.
 import 'package:borrowlend/features/items/domain/use_case/get_my_items_usecase.dart';
 import 'package:borrowlend/features/items/domain/use_case/update_item_usecase.dart';
 import 'package:borrowlend/features/items/presentation/viewmodel/item_view_model.dart';
+import 'package:borrowlend/features/notification/data/data_source/remote_data_source.dart/notification_api_datasource.dart';
+import 'package:borrowlend/features/notification/data/data_source/remote_data_source.dart/notification_socket_datasource.dart';
+import 'package:borrowlend/features/notification/data/repository/notification_repository.dart';
+import 'package:borrowlend/features/notification/domain/repository/notification_repository.dart';
+import 'package:borrowlend/features/notification/domain/use_case/connect_socket_usecase.dart';
+import 'package:borrowlend/features/notification/domain/use_case/get_notification_usecase.dart';
+import 'package:borrowlend/features/notification/domain/use_case/listen_notification_usecase.dart';
+import 'package:borrowlend/features/notification/presentation/view_model/notification_view_model.dart';
 import 'package:borrowlend/features/profile/data/data_source/remote_data_source/profile_remote_datasource.dart';
 import 'package:borrowlend/features/profile/data/repository/profile_repository.dart';
 import 'package:borrowlend/features/profile/domain/repository/profile_repository.dart';
@@ -75,6 +83,8 @@ Future<void> initDependencies() async {
     await _initProfileModule();
     await _initReviewModule();
     await _initBorrowModule();
+     await _initNotificationModule(); 
+
   }
 }
 
@@ -433,4 +443,65 @@ Future<void> _initBorrowModule() async {
       createRequest: serviceLocator<CreateBorrowRequestUseCase>(),
     ),
   );
+
+
+}
+
+
+// At the end of your service_locator.dart file, add this new function:
+
+Future<void> _initNotificationModule() async {
+  // --- NOTIFICATION FEATURE ---
+
+  // Data Layer
+  // Register Data Sources
+  if (!serviceLocator.isRegistered<NotificationApiDataSource>()) {
+    serviceLocator.registerLazySingleton(
+      () => NotificationApiDataSource(serviceLocator<ApiService>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<NotificationSocketDataSource>()) {
+    serviceLocator.registerLazySingleton(() => NotificationSocketDataSource());
+  }
+
+  // Register Repository
+  if (!serviceLocator.isRegistered<NotificationRepository>()) {
+    serviceLocator.registerLazySingleton<NotificationRepository>(
+      () => NotificationRepositoryImpl(
+        apiDataSource: serviceLocator<NotificationApiDataSource>(),
+        socketDataSource: serviceLocator<NotificationSocketDataSource>(),
+      ),
+    );
+  }
+
+  // Domain Layer
+  // Register Use Cases
+  if (!serviceLocator.isRegistered<GetNotificationsUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => GetNotificationsUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<ConnectSocketUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => ConnectSocketUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+  if (!serviceLocator.isRegistered<ListenToNotificationsUseCase>()) {
+    serviceLocator.registerLazySingleton(
+      () => ListenToNotificationsUseCase(serviceLocator<NotificationRepository>()),
+    );
+  }
+
+  // Presentation Layer
+  // Register ViewModel (as a Factory because it's tied to a View's lifecycle)
+  if (!serviceLocator.isRegistered<NotificationViewModel>()) {
+    serviceLocator.registerFactory<NotificationViewModel>(
+      () => NotificationViewModel(
+        getNotificationsUseCase: serviceLocator<GetNotificationsUseCase>(),
+        listenToNotificationsUseCase: serviceLocator<ListenToNotificationsUseCase>(),
+        connectSocketUseCase: serviceLocator<ConnectSocketUseCase>(),
+        sessionCubit: serviceLocator<SessionCubit>(), // Inject the existing SessionCubit
+      ),
+    );
+  }
 }

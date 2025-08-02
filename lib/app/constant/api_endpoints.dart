@@ -8,7 +8,7 @@ class ApiEndpoints {
   //connection with local host
   static const String serverAddress = "http://localhost:5050";
 
-  //static const String serverAddress = "http://10.0.2.2:5050";
+  // static const String serverAddress = "http://10.0.2.2:5050";
 
   static const String baseUrl = "$serverAddress/api/";
   //Auth
@@ -39,6 +39,8 @@ class ApiEndpoints {
   static const String getBorrowRequests = "borrow/requests";
   static const String getOngoingBorrowings = "borrow/ongoing";
   static String updateBorrowRequest(String requestId) => "borrow/request/$requestId";
+  
+static const String getNotifications = "notifications"; 
 
 
 }
