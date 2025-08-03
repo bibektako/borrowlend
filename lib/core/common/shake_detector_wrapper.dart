@@ -15,23 +15,29 @@ class GlobalShakeDetector {
   StreamSubscription<AccelerometerEvent>? _subscription;
   DateTime _lastShakeTime = DateTime.now();
 
-  static const double shakeThreshold = 15.0;
+  static const double shakeThreshold = 2.0;
   static const Duration debounceDuration = Duration(seconds: 2);
 
+  bool _isDialogOpen = false;
+
   void start(BuildContext context) {
-    _subscription ??= accelerometerEvents.listen((event) {
+    if (_subscription != null) return;
+
+    _subscription = accelerometerEvents.listen((event) {
       final gX = event.x / 9.81;
       final gY = event.y / 9.81;
       final gZ = event.z / 9.81;
 
       final gForce = sqrt(gX * gX + gY * gY + gZ * gZ);
+      print('📟 Accelerometer: x=$gX, y=$gY, z=$gZ → gForce=$gForce');
 
       if (gForce > shakeThreshold) {
-        print("📱 Shake detected!");
         final now = DateTime.now();
         if (now.difference(_lastShakeTime) > debounceDuration) {
           _lastShakeTime = now;
-          _showLogoutConfirmation(context);
+          if (!_isDialogOpen) {
+            _showLogoutConfirmation(context);
+          }
         }
       }
     });
@@ -40,9 +46,12 @@ class GlobalShakeDetector {
   void stop() {
     _subscription?.cancel();
     _subscription = null;
+    _isDialogOpen = false;
   }
 
   void _showLogoutConfirmation(BuildContext context) {
+    _isDialogOpen = true;
+
     showDialog(
       context: context,
       builder:
@@ -51,17 +60,20 @@ class GlobalShakeDetector {
             content: const Text("Do you want to log out?"),
             actions: [
               TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _isDialogOpen = false;
+                },
                 child: const Text("Cancel"),
               ),
               TextButton(
                 onPressed: () async {
-                  Navigator.of(ctx).pop(); // close dialog first
+                  Navigator.of(ctx).pop(); // Close dialog first
+                  _isDialogOpen = false;
 
                   final tokenSharedPrefs = serviceLocator<TokenSharedPrefs>();
                   await tokenSharedPrefs.deleteToken();
 
-                  // ignore: use_build_context_synchronously
                   Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(builder: (_) => LoginView()),
                     (route) => false,

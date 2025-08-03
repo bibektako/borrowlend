@@ -7,27 +7,27 @@ import 'package:borrowlend/features/auth/presentation/view_model/signup_view_mod
 import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:flutter/material.dart';
 
-import '../login_view_model/login_view_model_test.dart';
-
-// 1. --- Mocks and Fakes ---
+// ✅ Mocks and Fakes
 class MockCreateUserUsecase extends Mock implements CreateUserUsecase {}
 
 class FakeCreateUserUsecaseParams extends Fake
     implements CreateUserUsecaseParams {}
 
+class MockBuildContext extends Mock implements BuildContext {}
+
 void main() {
   late SignupViewModel signupViewModel;
   late MockCreateUserUsecase mockCreateUserUsecase;
 
-  // Test Constants
+  // ✅ Dummy constants
   const tUsername = 'testuser';
   const tEmail = 'test@gmail.com';
   const tPhone = '1234567890';
   const tPassword = 'password123';
 
   setUpAll(() {
-    // Register fallback needed for Mocktail's `any()` matcher
     registerFallbackValue(FakeCreateUserUsecaseParams());
   });
 
@@ -45,67 +45,62 @@ void main() {
   });
 
   group('SignupUserEvent', () {
-    // TEST CASE 1: Successful Signup
     blocTest<SignupViewModel, SignupState>(
       'emits [loading, success] states when signup is successful',
-      setUp: () {
-        // Arrange: Use case will return a success (Right)
-        when(
-          () => mockCreateUserUsecase(any()),
-        ).thenAnswer((_) async => const Right(null));
-      },
       build: () => signupViewModel,
-      act:
-          (bloc) => bloc.add(
-            SignupUserEvent(
-              // Note: The refactored event doesn't need context
-              username: tUsername,
-              email: tEmail,
-              phone: tPhone,
-              password: tPassword,
-              confirmPassword: tPassword,
-              context: MockBuildContext(),
-            ),
-          ),
-      expect:
-          () => <SignupState>[
-            const SignupState(isLoading: true, isSuccess: false),
-            const SignupState(isLoading: false, isSuccess: true),
-          ],
+      setUp: () {
+        when(() => mockCreateUserUsecase(any()))
+            .thenAnswer((_) async => const Right(null));
+      },
+      act: (bloc) => bloc.add(
+        SignupUserEvent(
+          username: tUsername,
+          email: tEmail,
+          phone: tPhone,
+          password: tPassword,
+          confirmPassword: tPassword,
+          context: MockBuildContext(),
+        ),
+      ),
+      expect: () => [
+        const SignupState(isLoading: true, isSuccess: false),
+        const SignupState(isLoading: false, isSuccess: true),
+      ],
+      verify: (_) {
+        verify(() => mockCreateUserUsecase(any())).called(1);
+      },
     );
 
-    // TEST CASE 2: Failed Signup
     blocTest<SignupViewModel, SignupState>(
-      'emits [loading, failure] with an error message when signup fails',
-      setUp: () {
-        // Arrange: Use case will return a failure (Left)
-        const failure = RemoteDatabaseFailure(message: 'Email already exists');
-        when(
-          () => mockCreateUserUsecase(any()),
-        ).thenAnswer((_) async => const Left(failure));
-      },
+      'emits [loading, failure] with error message when signup fails',
       build: () => signupViewModel,
-      act:
-          (bloc) => bloc.add(
-            SignupUserEvent(
-              username: tUsername,
-              email: tEmail,
-              phone: tPhone,
-              password: tPassword,
-              confirmPassword: tPassword,
-              context: MockBuildContext(),
-            ),
-          ),
-      expect:
-          () => <SignupState>[
-            const SignupState(isLoading: true, isSuccess: false),
-            const SignupState(
-              isLoading: false,
-              isSuccess: false,
-              errorMessage:
-                  'Email already exists', // Assert the error message is in the state
-            ),
-          ],
+      setUp: () {
+        when(() => mockCreateUserUsecase(any())).thenAnswer(
+          (_) async =>
+              const Left(RemoteDatabaseFailure(message: 'Email already exists')),
+        );
+      },
+      act: (bloc) => bloc.add(
+        SignupUserEvent(
+          username: tUsername,
+          email: tEmail,
+          phone: tPhone,
+          password: tPassword,
+          confirmPassword: tPassword,
+          context: MockBuildContext(),
+        ),
+      ),
+      expect: () => [
+        const SignupState(isLoading: true, isSuccess: false),
+        const SignupState(
+          isLoading: false,
+          isSuccess: false,
+          errorMessage: 'Email already exists',
+        ),
+      ],
+      verify: (_) {
+        verify(() => mockCreateUserUsecase(any())).called(1);
+      },
     );
   });
 }

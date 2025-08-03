@@ -94,10 +94,10 @@ class _HomePageContent extends StatelessWidget {
             CategoryExplorer(),
             const SizedBox(height: 24),
 
-            // Featured Section
-            const MostBorrowed(),
-            const SizedBox(height: 18),
             const HighRatedItems(),
+            const SizedBox(height: 18),
+            const MostBorrowed(),
+
             const SizedBox(height: 24),
 
             // More items

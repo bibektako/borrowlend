@@ -2,7 +2,7 @@ import 'package:borrowlend/features/category/domain/entity/category_entity.dart'
 import 'package:borrowlend/features/items/domain/entity/item_entity.dart';
 import 'package:equatable/equatable.dart';
 
-sealed class ItemEvent extends Equatable {
+class ItemEvent extends Equatable {
   const ItemEvent();
 
   @override

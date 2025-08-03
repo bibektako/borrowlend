@@ -1,7 +1,7 @@
 import 'package:borrowlend/features/category/domain/entity/category_entity.dart';
 import 'package:equatable/equatable.dart';
 
-sealed class CategoryState extends Equatable {
+class CategoryState extends Equatable {
   const CategoryState();
 
   @override
