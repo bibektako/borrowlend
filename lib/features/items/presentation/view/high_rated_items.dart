@@ -13,13 +13,15 @@ class HighRatedItems extends StatelessWidget {
 
     return BlocBuilder<ItemViewModel, ItemState>(
       builder: (context, state) {
+        // Filter and sort items with rating >= 4.0
         final ratedItems =
             state.items
-                .where((item) => item.rating != null && item.rating! >= 4.0)
-                .toList();
+                .where((item) => item.rating != null && item.rating! >= 1.0)
+                .toList()
+              ..sort((a, b) => b.rating!.compareTo(a.rating!)); // Descending
 
         if (ratedItems.isEmpty) {
-          return const SizedBox(); // Or a message like 'No top rated items yet.'
+          return const SizedBox(); // Or show a message
         }
 
         return Padding(
@@ -27,43 +29,41 @@ class HighRatedItems extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header with divider
-              Column(
+              // Section Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "Top Rated Items",
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          // Optional See All action
-                        },
-                        child: Text(
-                          "See All",
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    "Top Rated Items",
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  const Divider(thickness: 1, color: Colors.grey),
+                  TextButton(
+                    onPressed: () {
+                      // Optional See All navigation
+                    },
+                    child: Text(
+                      "See All",
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
                 ],
               ),
+              const Divider(thickness: 1, color: Colors.grey),
               const SizedBox(height: 12),
-              // Horizontal scroll of top-rated item cards
+
+              // Horizontal List of Cards
               SizedBox(
                 height: 250,
                 child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 0),
                   scrollDirection: Axis.horizontal,
                   itemCount: ratedItems.length,
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  separatorBuilder: (_, __) => const SizedBox(width: 12),
                   itemBuilder: (context, index) {
                     final item = ratedItems[index];
                     return SizedBox(
@@ -80,7 +80,6 @@ class HighRatedItems extends StatelessWidget {
                       ),
                     );
                   },
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
                 ),
               ),
             ],

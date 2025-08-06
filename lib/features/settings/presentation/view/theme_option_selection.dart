@@ -19,8 +19,6 @@ class ThemeOptionsSection extends StatelessWidget {
             _buildSectionTitle(context, "Appearance"),
             const SizedBox(height: 8),
 
-            // --- Manual Theme Selection ---
-            // These radio buttons are disabled if auto-mode is on.
             RadioListTile<ThemeMode>(
               title: const Text('Light Mode'),
               value: ThemeMode.light,
@@ -48,7 +46,6 @@ class ThemeOptionsSection extends StatelessWidget {
 
             const Divider(height: 24),
 
-            // --- Automatic Theme Switch ---
             SwitchListTile(
               title: const Text("Automatic Theme"),
               subtitle: const Text("Adjusts based on ambient light"),
@@ -65,7 +62,6 @@ class ThemeOptionsSection extends StatelessWidget {
     );
   }
 
-  // Helper widget for section titles for consistency
   Widget _buildSectionTitle(BuildContext context, String title) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),

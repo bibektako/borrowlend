@@ -12,11 +12,8 @@ class SettingsView extends StatelessWidget {
       ),
       body: ListView(
         children: const [
-          // Section for theme and appearance settings
           ThemeOptionsSection(),
 
-          // You can add more sections here in the future
-          // e.g., Divider(), AccountSettingsSection(),
         ],
       ),
     );

@@ -8,7 +8,22 @@ class ApiEndpoints {
   //connection with local host
   // static const String serverAddress = "http://localhost:5050";
 
-  static const String serverAddress = "http://192.168.2.106:5050";
+   static const String serverAddress = "http://192.168.2.106:5050";
+
+  // static String get _serverAddress {
+  
+  //   if (Platform.isAndroid) {
+  //     return "http://10.0.2.2:5050"; // Android emulator
+  //   } else if (Platform.isIOS) {
+  //     return "http://localhost:5050"; // iOS simulator
+  //   } else {
+  //     return "http://192.168.2.106:5050"; // Real device - update this as needed
+  //   }
+  // }
+
+  // static String get baseUrl => "$_serverAddress/api/";
+
+  
 
   static const String baseUrl = "$serverAddress/api/";
   //Auth
